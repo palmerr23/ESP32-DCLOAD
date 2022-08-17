@@ -1,6 +1,8 @@
 # ESP32-DCload
 An ESP32-based WiFi controlled DC load
 
+These files relate to a project published in Silicon Chip magazine in October 2022.  https://www.siliconchip.com.au/ 
+
 Key features:
 
 •	150V and 30A maximum values within a 300W power envelope.
@@ -20,13 +22,12 @@ Key features:
 •	Remote control via WiFi browser interface
 
 •	SCPI programmable over WiFi and isolated USB
+
 •	Over-voltage, over-current and reverse voltage protection
 
-These files relate to a project to be published in Silicon Chip magazine during 2022, and the project will be populated close to the publication date. 
+•	Definition files for the open source SCPI TestController instrument control application (https://lygte-info.dk/project/TestControllerIntro%20UK.html). 
 
-https://www.siliconchip.com.au/ 
-
-Only compiled code is provided for 2.8" and 3.5" versions (ILI9341 and ILI9488 LCD controllers) because the number of libraries and complexity of code would make it difficult for others to get a clean compile.
+Only compiled code is provided for a 3.5" TFT (ILI9488 controllers) because the number of libraries and complexity of code would make it difficult for others to get a clean compile.
 
 The Laser_Templates folder has SVG files for the front panel of the load. 
 
