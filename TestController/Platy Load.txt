@@ -1,0 +1,337 @@
+; Platypus DC electronic load.
+; Ethernet connection only.  TestController does not support USB unless LXi driver installed.
+
+#idString Platypus,DCL01
+#name Platypus WiFi DC Load
+#help PlatyLoadHelp
+#helpurl https://github.com/palmerr23/ESP32-DCLOAD
+#handle PlatyLoad
+#port 5025
+;#author rwp
+;#notes Only Ethernet, not usb.  
+#cmdDelayTime 1000
+#readingDelay 2
+#forceUpperCase 1
+
+#value Voltage V D3
+#value Current A D3
+#value Power W D3
+#value Resistance R D3
+#value Capacity Ah D3
+#value Time mS D0
+
+#askValues :MEAS:VOLT?;:MEAS:CURR?;:MEAS:POWE?;:MEAS:RESI?
+;#askModeMathFormat formatDouble(value,1,3,2,2)
+
+#outputOff :SOUR:STAT OFF
+#interface setOn :SOUR:STAT ON
+
+#interface setVoltage :SOUR:VOLT (value)V
+#interface setCurrent :SOUR:CURR (value)A
+#interface setPower :SOUR:POW (value)W
+#interface setResistance :SOUR:RES (value)R
+
+#interface getVoltage :MEAS:VOLT?
+:readformat: u
+#interface getCurrent :MEAS:CURR?
+:readformat: u
+#interface getPower :MEAS:POW?
+:readformat: u
+#interface getResistance :MEAS:RES?
+:readformat: u
+#interface getOn :SOUR:STAT?
+:readmath: listIndex(value,"OFF ON");
+
+#interface readVoltage 0
+#interface readCurrent 1
+#interface readPower 2
+
+;;;;;; Popup interface
+; on all forms
+
+#cmdSetup info Volts 
+:read: :MEAS:VOLT?
+:readmath: formatDouble(value,1,3,2,2)
+V
+_
+
+#cmdSetup info Amps 
+:read: :MEAS:CURR?
+:readmath: formatDouble(value,1,3,2,2)
+A
+_
+
+#cmdSetup info Watts 
+:read: :MEAS:POWE?
+:readmath: formatDouble(value,1,3,2,2)
+W
+_
+
+#cmdSetup info Resist 
+:read: :MEAS:RESI?
+:readmath: formatDouble(value,1,3,2,2)
+Ohms
+_
+
+
+#cmdsetup buttonsOn Load
+:read: :SOUR:STAT?
+:write: :SOUR:STAT
+:tip: Load on / off
+; **Second** state has red indicator
+:string:
+Off OFF 
+On ON 
+
+;;;;;;;;; MAIN form
+
+#cmdSetup radio Mode Main
+:read: :SOUR:MODE?
+:write: :SOUR:MODE
+:string:
+CV CV
+CC CC
+CP CP
+CR CR
+
+#cmdSetup number Voltage Main
+:read: :SOUR:VOLT?
+:readformat: u
+:write: :SOUR:VOLT #V
+;:update: Voltage
+:buttontext: Volts
+:tip: Load voltage for voltage mode and Battery Test terminal voltage
+Volts 0.1 150
+
+
+#cmdSetup number Current Main
+:read: :SOUR:CURR?
+:readformat: u
+:write: :SOUR:CURR #A
+;:update: Current
+:buttontext: Amps
+:tip: Load current for current mode
+Amps 0 30
+
+#cmdSetup number Power Main
+:read: :SOUR:POWE?
+:readformat: u
+:write: :SOUR:POWE #W
+;:update: Mode
+:buttontext: Watts
+:tip: Load power for power mode
+Watts 0 300
+
+#cmdSetup number Resistance Main
+:read: :SOUR:RESI?
+:readformat: u
+:write: :SOUR:RESI #R
+;:update: Mode
+:buttontext: Ohms
+:tip: Load resistance for resistance mode
+Ohms 0.05 9999
+
+; TestController has built in logging
+;#cmdSetup number Log_Interval Main
+;:read: :SOUR:LOGI?
+;:readformat: u
+;:write: :SOUR:LOGI #S
+;:update: Mode
+;:buttontext: LogInt
+;:tip: Log inteval time
+;Secs 0 9999
+
+;;;;;;;;;;; STEP 1
+#cmdSetup number S1_Volts Step1
+:read: :FUNC:STEP:AVOL?
+:readformat: u
+:write: :FUNC:STEP:AVOL #V
+;:update: Voltage
+:buttontext: Volts
+:tip: Step 1 voltage 
+Volts 0.1 150
+
+#cmdSetup number S1_Amps Step1
+:read: :FUNC:STEP:ACUR?
+:readformat: u
+:write: :FUNC:STEP:ACUR #A
+;:update: Current
+:buttontext: Amps
+:tip: Step 1 current 
+Amps 0 30
+
+#cmdSetup number S1_Time Step1
+:read: :FUNC:STEP:ATIM?
+:readformat: u
+:write: :FUNC:STEP:ATIM #S
+;:update: Mode
+:buttontext: Time
+:tip: Step 1 dwell time
+Secs 0 9999
+
+#cmdSetup numberInt S1_Steps Step1
+:read: :FUNC:STEP:ASTE?
+:readformat: u
+:write: :FUNC:STEP:ASTE 
+;:update: Mode
+:buttontext: Steps
+:tip: Step 1 staircase steps
+Steps 0 9999
+
+#cmdSetup separator - Step1
+2 100 Sunken
+
+#cmdSetup number Slew Step1
+:read: :FUNC:STEP:SLEW?
+:readformat: u
+:write: :FUNC:STEP:SLEW #S
+;:update: Mode
+:buttontext: Rise/Fall
+:tip: Rise/fall time between steps
+Secs 0 9999
+
+#cmdSetup buttonsOn Start_Step Step1
+:write: :FUNC:STEP:STAT 
+:read: :FUNC:STEP:STAT?
+:tip: Start the Step function in the selected mode
+:String:
+Off OFF
+On ON
+
+
+;;;;;;;;;; STEP 2
+#cmdSetup number S2_Volts Step2
+:read: :FUNC:STEP:BVOL?
+:readformat: u
+:write: :FUNC:STEP:BVOL #V
+;:update: Voltage
+:buttontext: Volts
+:tip: Step 2 voltage 
+Volts 0.1 150
+
+#cmdSetup number S2_Amps Step2
+:read: :FUNC:STEP:BCUR?
+:readformat: u
+:write: :FUNC:STEP:BCUR #A
+;:update: Current
+:buttontext: Amps
+:tip: Step 2 current 
+Amps 0 30
+
+#cmdSetup number S2_Time Step2
+:read: :FUNC:STEP:BTIM?
+:readformat: u
+:write: :FUNC:STEP:BTIM #S
+;:update: Mode
+:buttontext: Time
+:tip: Step 2 dwell time
+Secs 0 9999
+
+#cmdSetup numberInt S2_Steps Step2
+:read: :FUNC:STEP:BSTE?
+:readformat: u
+:write: :FUNC:STEP:BSTE 
+;:update: Mode
+:buttontext: Steps
+:tip: Step 2 staircase steps
+Steps 0 9999
+
+#cmdSetup separator - Step2
+2 100 Sunken
+
+#cmdSetup numberInt Cycles Step2
+:read: :FUNC:STEP:CYCL?
+:readformat: u
+:write: :FUNC:STEP:CYCL 
+;:update: Mode
+:buttontext: Cycles
+:tip: Step 2 staircase steps
+Cycles 0 9999
+
+#cmdSetup buttonsOn Start_Step Step2
+:write: :FUNC:STEP:STAT 
+:read: :FUNC:STEP:STAT?
+:tip: Start the Step function in the selected mode
+:String:
+Off OFF
+On ON
+
+
+;;;;;;;;;;;;; BAT Mode
+#cmdSetup radio Mode Bat
+:read: :SOUR:MODE?
+:write: :SOUR:MODE
+:string:
+CC CC
+CP CP
+
+
+#cmdSetup number Voltage Bat
+:read: :SOUR:VOLT?
+:readformat: u
+:write: :SOUR:VOLT #V
+;:update: Voltage
+:buttontext: Volts
+:tip: Terminal test voltage for Battery Test 
+Volts 0.1 150
+
+
+#cmdSetup number Current Bat
+:read: :SOUR:CURR?
+:readformat: u
+:write: :SOUR:CURR #A
+;:update: Current
+:buttontext: Amps
+:tip: Discharge current for BAT mode (CC)
+Amps 0 30
+
+#cmdSetup number Power Bat
+:read: :SOUR:POWE?
+:readformat: u
+:write: :SOUR:POWE #W
+;:update: Mode
+:buttontext: Watts
+:tip: Discharge power for BAT mode (CP)
+Watts 0 300
+
+#cmdSetup buttonsOn Start_Bat Bat
+:write: :FUNC:BATT:STAT 
+:read: :FUNC:BATT:STAT?
+:tip: Start the Battery function in the selected mode
+:string:
+Off OFF
+On ON
+
+
+;; add ESR and Capacity read values when OFF or terminal volts are read (update every 10 s???)
+#cmdSetup info ESR Bat
+:read: :FUNC:BATT:ESR?
+Ohms
+
+#cmdSetup info Capacity Bat
+:read: :FUNC:BATT:CAPA?
+AH
+
+#cmdSetup info Capacity Bat
+:read: :FUNC:BATT:CAPA?
+:readmath: (value * 1000)
+mAH
+;;;;;;;;;;;;;; LOG
+;;;;;; TestController has built in log functions
+;#cmdSetup number Log_Interval Log
+;:read: :SOUR:LOGI?
+;:readformat: u
+;:write: :SOUR:LOGI #S
+;:update: xx
+;:buttontext: Secs
+;:tip: Time between log samples
+;Secs 0 9999
+
+;;;;;;; Problematic - overwrites anything being set
+;;; keep at a low rate (assume other interfaces and this are not being used together
+#cmdSetup Updater update
+:update: Volts Amps Watts Resist
+1
+
+;:update: Mode Voltage Current Power Resistance Load S1_Volts S2_Volts S1_Amps S2_Amps S1_Steps S2_Steps Slew Cycles Start_Step Start_Bat ESR Capacity
+;20

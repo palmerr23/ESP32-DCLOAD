@@ -1,0 +1,69 @@
+##URL file:///D:/Devlop/lygte-info/project/TestController%20UK.html
+	This file goes into the  .\documents\TestController\Settings folder.
+MEAS:CURR?
+	Return sunk current reading in amps
+
+MEAS:VOLT?
+	Return input voltage reading in volts
+
+MEAS:POWE?
+	Return sunk power reading in watts
+
+MEAS:RESI?
+	Return effective load resistance in ohms	
+
+MEAS:WATT?
+	Return power sunk reading in watt-hours (battery test)
+	
+MEAS:TEMP? heatsinkTemp
+	
+MEAS:AMPH?
+	Return battery capacity reading in amp-hours (battery test)
+	
+MEAS:BATS?
+	Return battery internal resistance at START of test
+	
+MEAS:BATE?
+	Return battery internal resistance at END of test
+	
+MEAS:WAVE?
+	Return return log data in CSV format
+	
+SOUR:MODE mode
+	Set CC, CV, CP, CR modes (only CC & CP allowed in batt test mode)
+	Read mode setting 
+
+SOUR:VOLT voltage ?
+SOUR:CURR current ?
+SOUR:POWE power ?
+SOUR:RESI resistance ?
+SOUR:LOGI logInterval ?
+SOUR:STAT onOffState ?
+
+FUNC:BATT
+FUNC:BATT:STAT ?
+FUNC:BATT:ESR?
+FUNC:BATT:CAPA?
+
+FUNC:STEP
+FUNC:STEP:STAT ?
+FUNC:STEP:ACUR ?
+FUNC:STEP:AVOL ?
+FUNC:STEP:ATIM ?
+FUNC:STEP:ASTEP ?
+FUNC:STEP:ACYC ?
+
+FUNC:STEP:BCUR ?
+FUNC:STEP:BVOL ?
+FUNC:STEP:BTIM ?
+FUNC:STEP:BSTEP ?
+FUNC:STEP:BCYC ?
+
+FUNC:STEP:SLEW ?
+
+SYST:SSID ?
+SYST:PASS
+SYST:HOST ?
+SYST:AUTO ?
+SYST:ERROR?
+SYST:ERROR:NEXT?
