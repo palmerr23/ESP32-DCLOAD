@@ -27,7 +27,7 @@ Key features:
 
 •	Definition files for the open source SCPI TestController instrument control application (https://lygte-info.dk/project/TestControllerIntro%20UK.html). 
 
-Only compiled code is provided for a 3.5" TFT (ILI9488 controllers) because the number of libraries and complexity of code would make it difficult for others to get a clean compile.
+Only compiled code is provided for 2.8" and 3.5" TFT screens (ILI9341 and ILI9488 controllers) as the number of libraries and complexity of code would make it difficult for others to get a clean compile.
 
 The laser templates are designed for a 270mm x 210mm x 140mm blue metal enclosureavailable from eBay, Banggood and AliExpress. The templates have been tested with LightBurn, but should work with other laser cutter software.
 
