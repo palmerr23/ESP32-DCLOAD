@@ -1,1 +1,2 @@
-xxx
+Additional libraries required:
+* Adafruit GFX 
