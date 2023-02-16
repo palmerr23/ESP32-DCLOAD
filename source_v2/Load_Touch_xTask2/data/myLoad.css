@@ -1,0 +1,59 @@
+
+    html {font-family: Arial; display: inline-block; text-align: center;}
+    h2 {font-size: 2.0rem;}
+    p {font-size: 1.0rem;}
+     .range-slider2 {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;}
+   
+    body {max-width: 900px; margin:0px auto; padding-bottom: 25px;}
+	
+	/* Solo, On/Off and Pad buttons */
+	.divz{position:  relative; display: table-cell; float: left;   height: 35px; width: 35px; margin: 3px 7px; border-radius: 3px; background-color: #ccc; border: 1px solid #888}
+	.divzr{position: relative; display: table-cell; float: right;  height: 35px; width: 35px; margin: 3px 7px; border-radius: 3px; background-color: #ccc; border: 1px solid #888}
+	.divzc{position: relative; display: table-cell; float: center; height: 35px; width: 35px; margin: 3px 7px; border-radius: 3px; background-color: #ccc; border: 1px solid #888}
+	.lpad {background-color: transparent;  border-radius: 4px; height: 35px; width: 35px;}
+    .btnz {position: absolute; margin: 0px; top: 8px; left: 0px; height: 27px; width: 35px;  color: black; background-color: transparent; border-radius: 3px; font-weight: bold; font-size: 14px; }
+	.btnq {position: absolute; margin: 0px; left: 0px; height: 35px; width: 35px; opacity: 0;  background-color: transparent; border-radius: 3px; font-weight: bold; font-size: 14px;  android:text="disable keyboard"}
+	.btna {height: 35px; width: 35px; opacity: 0; color: black;  background-color: transparent; border-radius: 3px; font-weight: bold; font-size: 14px; margin: 0px; top: 12px;}
+   /* .btnz:before {position: absolute; content: ""; height: 1px; width: 1px; left: 6px; bottom: 0px; top: 12px; background-color: #fff; -webkit-transition: .2s; transition: .2s; border-radius: 4px}
+   */
+	.labelz:before {position: absolute; content: ""; height: 35px; width: 35px; left: 6px; bottom: 0px; top: 3px; background-color: #fff; border-radius: 4px}*
+    .labelz {vertical-align: bottom; background-color: #333; border-radius: 3px;}
+    .reads {margin-top: 3px; font-size: 24px; float: left; background-color: transparent; border: none; text-align: right; font-weight: bold;}    /* transparent */ 
+	.unit {position: absolute; text-align: left; margin:10px 0 0 0; background-color: transparent; width: 30px}
+    .errline {animation:blinkingText .7s infinite; font-size: 16px; float: left; background-color: transparent; border: none; text-align: center; font-weight: bold; maxlength: 16}    /* transparent */ 
+
+	#jog_dial {background: url('base_bg.png'); background-repeat: none; } 
+	#jog_dial #jog_dial_knob {background: url('base_knob.png'); background-repeat: none;)} 
+
+    .container {width: 80%;margin: 7px auto;} /* height: 250px; */
+
+    .row {display: table-row; padding: 5px; margin: 10px;}
+    .column  {display: table-column; height: 180px; padding: 5px; border: none; float: left;} 
+	.column2 {display: table-column;  padding: 5px; border: none;  float: left;} 
+	.cell {display: table-cell; margin: 2px;  padding: 5px; float: left;}
+    
+	.pg_container {display: table; padding: 5px; margin: 20px; border: 1px solid #666666; background-color:#6cf; }
+    .tm_container {display: table; padding: 5px; margin: auto; background-color: #e6f7ff; border: 1px}  
+    .bm_container {display: inline-block; padding: 5px; margin: auto; align: center;}  	/* */
+    .tx_container {display: table; padding: 5px;}
+    .screenChangeL {border: 1px solid #666; background-color:#6cf; padding: 5px; width:80px; font-size: 15px; font-weight: bold;}
+	.buttonTop {display: flex; justify-content: right; }
+    .screenChangeR {display: none;}
+    .headlineL {border: 1px none;  font-weight: bold; font-size: 22px; pointer-events: none; text-align: left; background-color: transparent;}
+    .headlineS {display: inline-block; border: 1px none;  font-weight: bold; font-size: 25px; pointer-events: none; text-align: center; background-color: transparent;}
+	.headlineO {border: 1px none;  font-weight: bold; font-size: 25px; text-align: left;}
+    .buttonForm {}
+	.blinking{animation:blinkingText 1.2s infinite;border: 1px none; text-align: center; font-weight: bold; font-size: 25px; background-color: transparent;}
+	@keyframes blinkingText{
+		0%{     color: #f00;    }
+		49%{    color: #f00; }
+		60%{    color: transparent; }
+		99%{    color:transparent;  }
+		100%{   color: #f00;    }
+	}
+       /* Faders */
+    .slidery {display: inline-block; background-color: #ccc; border-radius: 1px; margin: 0px 0px;}    
+	.chanName {background-color: #ccc; text-align: center; width: 70px; padding: 3px; border-radius: 3px; border: 0px none; font-weight: bold; }

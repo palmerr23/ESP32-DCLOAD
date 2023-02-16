@@ -1,0 +1,48 @@
+ // SCPI tree
+ /*
+  **** NOTE :SYSTEM:ERROR must be registered (also SYS  & ERR)
+   * Command tree
+   *  *IDN?          				-> identify (pre-registered in library code)
+   *** *TST?						-> run self test (pre-registered in library code?)
+   *  :INSTrument
+   *    :NAME  		<string>      	-> set name
+   *    :NAME?       				-> get name
+
+   *	:ESTOP		 				-> turn all channels on this instrument OFF
+   *  :SOURCce						-- Control values
+   *    :VOLTage  	<float[V]>  	-> set_voltage
+   *    :VOLTage?    				-> get set_voltage
+   *    :CURRent   	<float[A]>  	-> set_current
+   *    :CURRent?    				-> get set_current
+   *    :POWEr?    					-> get set_power
+   *    :POWEr   	<float[W]>  	-> set_power   
+   *    :RESIstance?    			-> get set_resistance
+   *    :RESIstance  <float[A]>  	-> set_resistance   
+		:STATe	-> output on/off
+   LOGTime
+   :FUNCTION
+	 :BATTery
+		:STEP
+			:ACURrent
+			:BCURrent
+			:AVOLtage
+			:BVOLtage
+			:ATIMe
+			:BTIMe
+			:ASTEps
+			:BSTEps
+			:SLEW
+			:CYCLes
+		
+   *  :MEASure						-- Instrument readings
+   *    :VOLTage?    				-> get_voltage
+   *    :CURRent?    				-> get_current
+	   :POWEr?
+	   :RESIstance?
+      * 	:TEMP?		 				-> get heatsink temperature
+:WATThours?
+:AMPHours?
+:BATStartr
+:BATEndr
+:WAVEdata?
+*/
