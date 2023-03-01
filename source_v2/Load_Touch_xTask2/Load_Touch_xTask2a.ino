@@ -244,7 +244,7 @@ void controlTask(void *pvParameters)
           {
 #ifdef C_DEBUG 
 #endif           
-            Serial.printf("[%c %1.3f, %1.3f: A %1.3f, E %1.3f]\n", (sg > 0) ? '>' : '<', sg ,srg,  meas.ADSamps, meas.ESPamps);
+            //Serial.printf("[%c %1.3f, %1.3f: A %1.3f, E %1.3f]\n", (sg > 0) ? '>' : '<', sg ,srg,  meas.ADSamps, meas.ESPamps);
             DACis = control(ESP_CONTROL); // use ESP, coarse only
             //cCount++;
           }
