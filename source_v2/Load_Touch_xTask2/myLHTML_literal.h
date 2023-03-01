@@ -68,23 +68,5 @@ const char settings_html[] PROGMEM = R"rawliteral(
 </body>
 </html>
 )rawliteral";
-/*
-		<input type="text" hidden readonly id="devName" class="headlineS" size=4 value="XXX">
-     <h3>Load Preset</h3>
-      <label for="getFilefile">Preset file to load: </label>
-      <input id='getFile' type='file' onchange='openFile(event)'><BR><br>
-      <textarea id="inJSON" rows="6" cols="60">JSON preset from file will load here, and then be activated.</textarea>
-	  
 
-*/
-
-/*
-		  %SETTINGSGROUP%
-	  <div class="bm_container">
-
-	  </div> <BR> 
-	  
-	  
-	   <input type="text" readonly id="errorText" class="blinking" value ="" style="color: red"><BR>
-	  */
 #endif
