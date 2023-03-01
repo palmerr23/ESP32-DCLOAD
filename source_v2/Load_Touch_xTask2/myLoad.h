@@ -83,8 +83,8 @@ Adafruit_MCP4725 dac;
 #define ADS_CONTROL 1		// ADS values used, coarse or fine control
 #define ESP_CONTROL 2		//  ESP values used, with sense check at low values.
 #define COARSE_ITER  10		// number of read/set iterations in FAST control mode
-#define C_VARCOARSE	 (0.4)  // abs diff for COARSE / FAST CONTROL
-#define C_VARCOARSER (0.4)  // ratio diff for COARSE / FAST CONTROL
+#define C_VARCOARSE	 (5)  // abs diff for COARSE / FAST CONTROL
+#define C_VARCOARSER (0.6)  // ratio diff for COARSE / FAST CONTROL
 #define C_VARFINE	 (0.005)  // abs diff for ADS_CONTROL - 
 #define C_VARFINER	 (0.005)  // ratio diff for ADS_CONTROL - 
 #define C_DAMPING    (0.6)
@@ -161,7 +161,7 @@ float pMaxOp = PMAXOP; 		// used in calculations - modified if daughter board pr
 #define CADSHI_I	(3360)
 
 //ESP ADC - values will have zero offsets
-#define ESPREADS	3	// multiple reads to gain better precision
+#define ESPREADS	5	// multiple reads to gain better precision
 #define CESPLO_V	720	// reading at no volts input (flatline) - this gets changed by Cal()
 #define ESPOFF_V	(0.65)	// offset for all voltages
 #define RESPMIN_V 	(3.0)  	// min viable result. > ESPOFF_V  
