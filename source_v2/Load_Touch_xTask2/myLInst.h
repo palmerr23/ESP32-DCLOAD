@@ -105,11 +105,11 @@ char dns_id[IDLEN] = "ESP32_5";
 	#include "ESPRotary.h"
 	ESPRotary enc = ESPRotary(ENC_B, ENC_A, ENC_CLIX);
 #endif
-#include "Button2.h"
 
+#include "Button2.h"
 //Button2 but  = Button2(ENC_SW); // not used
-Button2 butL = Button2(L_BUT, INPUT_PULLDOWN, false, DEBOUNCE);
-Button2 butR = Button2(R_BUT, INPUT_PULLDOWN, false, DEBOUNCE);
+Button2 butL = Button2(L_BUT, INPUT_PULLDOWN, false);
+Button2 butR = Button2(R_BUT, INPUT_PULLDOWN, false);
 
 #define ADSBITS 15
 
@@ -164,7 +164,7 @@ bool IamAP = false;	// am I the AP?
 #else // ILI9488
 	#define HMAX 480	// not used everywhere. when using sx() 320 is max
 	#define VMAX 320    // not used everywhere. when using sy() 240 is max
-	#define SCREENROT 1 // SCREEN rotation default
+	#define SCREENROT 3 // SCREEN rotation default
 	#define TOUCHROT 1
 #endif
 
