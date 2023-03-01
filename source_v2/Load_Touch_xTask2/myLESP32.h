@@ -216,68 +216,8 @@ void printClientChanges(int clientX)
       }
 }
 
-// calculated display levels for the HTTP interface
-// these are calculated on the fly every time a level packet is requested.
-// they will relate to the current screen of the requesting Host.
-/*struct outLevels {
-  float outLevel[INCHANS];
-  float outlevelM;
-  int scrn;  // may not be used
-} oLevels;
-*/
-//struct faderPkt mySets;
-//bool pfl[INCHANS];
-//bool chOn[INCHANS];
-//short  highButton = -1;	// currently selected screen button
-//instID myID = {{192,168,50,1}, {192,168,50,1},{192,168,50,0}, LOCAL_SS, LOCAL_PASS, ESPNETNAME, ESPNETPW, true, 1, 7, ISSLAVE, "MONI"};
-//settings pSetA ; // do we still use this????
-// are we using the encoder to change values or change screens?
 bool changeScreenMode = true; // this starts with a false 'press' so intialise to ON
 long lastScreenChange = 0;
 
-//#define WIFITYPE SLAVE
-/*
-uint16_t byteTime;
-HardwareSerial mySerial(2); // UART2 - only one that's accessible while using SPI ***WILL NOT WORK ON WROVERS as IO 16/17 are NC ******
-							//Pins 16 & 17
-bool mySerialBegin(uint32_t speed)
-{
-  //Serial.printf("Starting UART 2 on TXD = %i, RXD = %i\n",TXD2,RXD2); 
-  mySerial.begin(speed);
-  mySerial.setTimeout(SERIALTIMEOUT);
-  //Serial.println("Serial Txd is on pin: "+String(TX));
-  //Serial.println("Serial Rxd is on pin: "+String(RX));
-  byteTime = (11 * 1000000L)/speed;	// microseconds per byte, assuming 11 bit times per byte
-  // audio processor should start sending level packets within SERIALTIMEOUT seconds if we're the master unit
- int byteCount = 0; 
- Serial.println("Checking for Teensy serial pkts");
- for (int i = 0; i < SERIALWAIT; i++)
-  {
-	while (mySerial.available())  
-	{ 	
-		uint8_t dummy = mySerial.read();	// phantom first byte?
-		byteCount++;
-		//Serial.printf("Master mode: Read from Teensy %i 0x%2x\n", i, dummy);
-		if(byteCount > 5)
-			return ISMASTER;
-	}
-	delay(1000);
-  }
-  return ISSLAVE;
-}
-// Reconcile different gains.inpad contributions
-// Part comes from Teensy and part from slaves.
-uint8_t lastInpadT = 0;
-void fixInpad(void)
-{		
-	if(inLevels.inpadT != lastInpadT) // broadcast change of line/level
-	{
-		Serial.printf("Fix Inpad: gains 0x%x, levels 0x%x, ", gains.inpad, inLevels.inpadT);
-		valChanged(VAL_GAIN_MASK); // don't broadcast the change
-		lastInpadT = inLevels.inpadT;
-	}
-	gains.inpad = (gains.inpad & PADCHANS) | (inLevels.inpadT & MLCHANS);
-	//Serial.printf("result 0x%x\n", gains.inpad);	
-}
-*/
+
 #endif
