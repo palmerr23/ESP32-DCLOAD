@@ -14,4 +14,5 @@ Compile with
 * Use "Arduino Runs On Core 0" and "Events Run On Core 1". Running both on the same CPU results in lost ADS ADC interrupts.
 
 Known to work with ESP32-WROOM DOWD2. Should work with WROVER as GPIO 16/17 are not required.
-Do not use ESP32-S3 DevkitCs as the pin number differ. 
+
+Do not use ESP32-S3 DevkitCs as the GPIO to pin number allocations differ. 
