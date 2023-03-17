@@ -2,6 +2,7 @@ Additional libraries required:
 * Adafruit GFX 
 * ArduinoJSON (Benoit BLANCHON)
 * ESP32 Wifi (I think all the necessary files are in the basic ESP32 package)
+* ESPAsyncWebServer (https://github.com/me-no-dev/ESPAsyncWebServer)
 
 Zip or folders for these have been included. Later versions may also work.
 * ESP32 Encoder 
