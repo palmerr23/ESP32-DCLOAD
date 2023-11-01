@@ -1,6 +1,8 @@
 # ESP32-DCload
 An ESP32-based WiFi controlled DC load
 
+## V3a code is development - not fully tested. Contains battery test, screen rotation and Kelvin sensing 'fix' code.
+
 These files relate to a project published in Silicon Chip magazine in October 2022.  https://www.siliconchip.com.au/ 
 
 Key features:
