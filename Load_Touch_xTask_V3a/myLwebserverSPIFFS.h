@@ -936,7 +936,7 @@ void printParams(AsyncWebServerRequest *request)
 	Serial.printf(" Request has %i params\n", params);
 	for(int i=0;i<params;i++)
 	{
-	  AsyncWebParameter* p = request->getParam(i);
+	  const AsyncWebParameter* p = request->getParam(i);
 	  if(p->isFile()) //p->isPost() is also true
 	  {
 		Serial.printf(" FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
@@ -957,7 +957,7 @@ void printParamsX(AsyncWebServerRequest *request)
   Serial.printf("Request has %i params:\n",paramsNr);
   for(int i=0;i<paramsNr;i++)
   { 
-     AsyncWebParameter* p = request->getParam(i);
+     const AsyncWebParameter* p = request->getParam(i);
  
      Serial.print("Name: |");
      Serial.print(p->name());

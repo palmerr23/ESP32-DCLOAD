@@ -1209,8 +1209,7 @@ void control_setup(void)
   daughterSense();
 
   // configure  PWM functionalitites
-  ledcSetup(PWMChannel, PWM_FREQ, PWM_RESOLUTION);
-  ledcAttachPin(PWM_PIN, PWMChannel);  
+  ledcAttach(PWM_PIN, PWM_FREQ, PWM_RESOLUTION);
   setFan(FAN_MIN_PWM);	// start the fan on idle  
   
   // set the mode variables  

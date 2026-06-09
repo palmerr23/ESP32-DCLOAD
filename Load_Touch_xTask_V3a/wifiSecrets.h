@@ -1,2 +1,4 @@
-#define LOCAL_SS "PalHome"
-#define LOCAL_PASS "AF18181F9C4516EE36AF9D79D3"
+// WiFi Credentials
+// Replace these with your own network details before compiling
+#define LOCAL_SS "your_wifi_ssid_here"
+#define LOCAL_PASS "your_wifi_password_here"
