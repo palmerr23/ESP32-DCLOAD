@@ -192,15 +192,22 @@ void setup() {
   SCPI_setup();
 #endif
   // attach the channel to the GPIO to be controlled
-  ledcAttachPin(PWM_PIN, PWMChannel);  
+  //ledcAttachPin(PWM_PIN, PWMChannel);  
+  ledcAttach(PWM_PIN, PWM_FREQ, PWM_RESOLUTION);
   // configure  PWM functionalitites
-  ledcSetup(PWMChannel, PWM_FREQ, PWM_RESOLUTION);
+  //ledcSetup(PWMChannel, PWM_FREQ, PWM_RESOLUTION);
   setFan(70);
   redrawScreen();
   //printDaughterCal();
   //printHalCal();
  getESPviReadings();
- esp_task_wdt_init(10, true); // change the watchdog to 10 seconds
+ //esp_task_wdt_init(10, true); // change the watchdog to 10 seconds
+ esp_task_wdt_config_t wdt_config = {
+    .timeout_ms = 10000,     // 10 seconds in milliseconds
+    .idle_core_mask = 0,     // don't watch idle tasks
+    .trigger_panic = true    // reset if watchdog fires
+};
+esp_task_wdt_init(&wdt_config);
  esp_task_wdt_add(NULL);
  //Serial.printf("Task subscribed to WDT %s\n", (esp_task_wdt_status(NULL) == ESP_OK)? "OK" : "BAD");
  //Serial.printf("fmap %3.2f\n", fmap(5, 0.0, 10.0, 0, 20));
