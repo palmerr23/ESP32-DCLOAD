@@ -7,6 +7,7 @@ myID comms params overwritten from profile.json
 */
 #ifndef MYLPROFILE_H
 #define MYLPROFILE_H
+#include "LittleFS.h"
 //#define PROF_TEST	// comment out for production - writes then reads back into dummy structures, compares
 
 //#define EE_VER_L 6  // SIZE OF THE BLOB
@@ -39,16 +40,16 @@ struct profile eeProfile;	// read EE into here to check against software version
 #define WIFISIZE	(sizeof(myWiFi))
 #define EESIZE (MPSIZE + ADSSIZE + IDSIZE + SCALSIZE + SETSIZE + WIFISIZE)
 
-bool SPIFFSstart()
+bool LittleFSstart()
 {
-  if(SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
+  if(LittleFS.begin(FORMAT_SPIFFS_IF_FAILED))
   {
-    //Serial.println("SPIFFS Mounted"); 
+    //Serial.println("LittleFS Mounted"); 
     // listDir(SPIFFS, "/", 4);
      return true;
   } 
   else
-    Serial.println("SPIFFS Mount Failed");
+    Serial.println("LittleFS Mount Failed");
   return false;
 }  
 

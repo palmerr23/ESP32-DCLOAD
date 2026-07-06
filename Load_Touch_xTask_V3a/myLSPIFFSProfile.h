@@ -8,7 +8,7 @@ All other seetings are in EEPROM
 #ifndef MYSPIFFSPROF_H
 #define MYSPIFFSPROF_H
 #include "FS.h"
-#include "SPIFFS.h"
+#include "LittleFS.h"
 #define FORMAT_SPIFFS_IF_FAILED true
 #include <ArduinoJson.h>
 #define BLKSIZE 1024	// assumes whole file is < this
@@ -46,7 +46,7 @@ bool getComms(void)
 {
 	bool success = true;
   jDoc.clear();
-	File file = SPIFFS.open(proFile);
+	File file = LittleFS.open(proFile);
 
 	if(!file)
 	{
@@ -102,7 +102,7 @@ bool setComms(bool create)
 	int len = strlen((char *)fileBuf);
 //  Serial.printf("Saving JSON. len = %i [%s]\n", len, fileBuf);
 
-  File file = SPIFFS.open(proFile, FILE_WRITE);
+  File file = LittleFS.open(proFile, FILE_WRITE);
   if(!file)
   {
      Serial.printf("%s − failed to open for writing\n", proFile);
@@ -124,15 +124,15 @@ serializeJsonPretty(jDoc, Serial);
 // assumes no subdirectories
 void listDir()
 {
-    Serial.printf("Listing SPIFFS root:\r\n");
-    File root = SPIFFS.open("/");
+    Serial.printf("Listing LittleFS root:\r\n");
+    File root = LittleFS.open("/");
     if(!root){
         Serial.println("- failed to open root directory");
         return;
     }
     File file = root.openNextFile();
 		if(!file)
-        Serial.println("- SPIFFS FS is empty"); 
+        Serial.println("- LittleFS is empty"); 
     while(file){        
 				Serial.print("  FILE: ");
 				Serial.print(file.name());

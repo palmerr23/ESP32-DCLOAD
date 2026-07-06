@@ -1,12 +1,12 @@
 // web server routines 
-// SPIFFS now in myLprofile.h
+// LittleFS mount now in myLprofile.h
 #ifndef MYLWSPIFFS_H
 #define MYLWSPIFFS_H
 
 #include "myLInst.h"
 #include "myLoad.h"
 #include "FS.h"
-#include "SPIFFS.h"
+#include "LittleFS.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 //#include "my_mx_defs.h"
@@ -205,28 +205,28 @@ void webServerStart()
   // load CSS, JS and icon files
   server.on("/myLoad.css", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    request->send(SPIFFS, "/myLoad.css", "text/css");
+    request->send(LittleFS, "/myLoad.css", "text/css");
   });
   server.on("/myLoad.js", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    request->send(SPIFFS, "/myLoad.js", "text/javascript");
+    request->send(LittleFS, "/myLoad.js", "text/javascript");
   });
     server.on("/jogDial.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    request->send(SPIFFS, "/jogDial.js", "text/javascript"); // "/jogDial.min.js"
+    request->send(LittleFS, "/jogDial.js", "text/javascript"); // "/jogDial.min.js"
   });
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/favicon.ico", "text/plain");
+    request->send(LittleFS, "/favicon.ico", "text/plain");
   });
     server.on("/FileSaver.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/FileSaver.js", "text/javascript");
+    request->send(LittleFS, "/FileSaver.js", "text/javascript");
   });
 
   server.on("/base_bg.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/base_bg.png", "image/png");
+    request->send(LittleFS, "/base_bg.png", "image/png");
   });
   server.on("/base_knob.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/base_knob.png", "image/png");
+    request->send(LittleFS, "/base_knob.png", "image/png");
   });
 
   // Start server

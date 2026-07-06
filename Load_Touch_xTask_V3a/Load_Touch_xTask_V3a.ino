@@ -119,7 +119,7 @@ void setup() {
   */
   for(int i = 0; i < NUM_CALS; i++)
     hal_defs[i] = halCal[i];  // copy factory defaults in case a reset is needed
-  if(!SPIFFSstart())
+  if(!LittleFSstart())
     screenError("File system failure", MY_RED, -1, true); 
 //Serial.println("SPIFFS started"); listDir();
 
@@ -202,13 +202,13 @@ void setup() {
   //printHalCal();
  getESPviReadings();
  //esp_task_wdt_init(10, true); // change the watchdog to 10 seconds
- esp_task_wdt_config_t wdt_config = {
-    .timeout_ms = 10000,     // 10 seconds in milliseconds
-    .idle_core_mask = 0,     // don't watch idle tasks
-    .trigger_panic = true    // reset if watchdog fires
-};
-esp_task_wdt_init(&wdt_config);
- esp_task_wdt_add(NULL);
+ //esp_task_wdt_config_t wdt_config = {
+ //   .timeout_ms = 10000,     // 10 seconds in milliseconds
+ //    .idle_core_mask = 0,     // don't watch idle tasks
+ //   .trigger_panic = true    // reset if watchdog fires
+//};
+//esp_task_wdt_init(&wdt_config);
+//esp_task_wdt_add(NULL);
  //Serial.printf("Task subscribed to WDT %s\n", (esp_task_wdt_status(NULL) == ESP_OK)? "OK" : "BAD");
  //Serial.printf("fmap %3.2f\n", fmap(5, 0.0, 10.0, 0, 20));
   Serial.println("******** Done setup *******");
