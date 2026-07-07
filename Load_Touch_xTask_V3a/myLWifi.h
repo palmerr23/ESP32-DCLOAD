@@ -76,13 +76,10 @@ bool wifiBegin(){
       screenError("Failed to connect\nto saved LANs", ERR_BG_A, 5, false);     
    }
    else // normal connect to existing LAN
-   { 
+{ 
       String sss = WiFi.SSID();
       const char * ssp = sss.c_str();
       strcpy(myID.local_ssid, ssp);    
-      sprintf(buf, "Connected to local LAN\nSSID = %s\n", myID.local_ssid);
-      SDEBUG1.printf(buf);
-      screenError(buf, ERR_BG_A, 1, false);
       myIP = WiFi.localIP();
 	    myBroadcastIP = WiFi.broadcastIP();
 	    mySubnetMask = WiFi.subnetMask();
@@ -90,6 +87,9 @@ bool wifiBegin(){
 		  //Serial.println(myBroadcastIP);
 			MDNS.begin(myID.instName);		
 	    setHostNameIP();
+      sprintf(buf, "Connected to local LAN\nSSID = %s\nIP = %s\n", myID.local_ssid, IPstring);
+      SDEBUG1.printf(buf);
+      screenError(buf, ERR_BG_A, 2, false);
       wifiStatus = WIFI_CONN;
       WifiConnected = true;
 //	    strcpy(pSet.conn_ssid, myID.local_ssid);
@@ -98,7 +98,6 @@ bool wifiBegin(){
 		  WiFi.printDiag(SDEBUG1);
 	    return true;
    }
-
    // Failed LAN - set up local ESPNET
 	 feedLoopWDT();
    WiFi.disconnect();
@@ -134,10 +133,13 @@ bool wifiBegin(){
 			mySubnetMask = cidr2netmask(WiFi.softAPSubnetCIDR());
 			WiFi.softAPsetHostname(myID.instName);
 			IamAP = true;				
-			MDNS.begin(myID.instName);
+            MDNS.begin(myID.instName);
 			setHostNameIP ();
-      wifiStatus = WIFI_SOFTAP;
-      WifiConnected = true;
+			sprintf(buf, "Started Access Point\nSSID = %s\nIP = %s\n", myWiFi[0].ssid, IPstring);
+			SDEBUG1.printf(buf);
+			screenError(buf, ERR_BG_A, 2, false);
+            wifiStatus = WIFI_SOFTAP;
+            WifiConnected = true;
 //			strcpy(pSet.conn_ssid, myID.esp_ssid);
 			updateWiFi(myWiFi[0].ssid, "", false);
 		 // printStoredWiFi();
