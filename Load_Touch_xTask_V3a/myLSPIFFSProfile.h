@@ -14,7 +14,8 @@ All other seetings are in EEPROM
 #define BLKSIZE 1024	// assumes whole file is < this
 char proFile[] = "/profile.json";
 //StaticJsonDocument<BLKSIZE> jDoc;
-DynamicJsonDocument jDoc(BLKSIZE);
+//DynamicJsonDocument jDoc(BLKSIZE);
+JsonDocument jDoc;
 uint8_t fileBuf[BLKSIZE];	
 struct version {  
   uint8_t softVer; // always after crc, length does not vary between versions

@@ -1,6 +1,6 @@
 #ifndef  MYLPOST_H
 #define  MYLPOST_H
-#define STR(x) STR_IMPL_(x)
+//#define STR(x) STR_IMPL_(x)
 #include "myI2Cscan.h"
 bool i2cTest(uint8_t i2cAddress);
 int probeDAC(uint8_t addrbase, uint8_t span);

@@ -1,4 +1,18 @@
 /* Changelog
+V1.3a - July 2026
+- Changed from SPIFFS to LittleFS (Mozzie-AU)
+  - Arduino 2.x LittleFS file uploader https://github.com/earlephilhower/arduino-littlefs-upload/releases
+- Updated libraries
+  - Moved to https://github.com/ESP32Async/ESPAsyncTCP  2.0.0 and ESPAsyncWebserver 3.11.2
+  - ESP32Encoder https://github.com/madhephaestus/ESP32Encoder/ 0.12
+  - ESPRotary https://github.com/LennartHennigs/ESPRotary 2.12
+  - SCPI Parser https://github.com/Vrekrer/Vrekrer_scpi_parser 0.50
+  - ILI9488 https://github.com/moononournation/Arduino_GFX 1.65
+  - https://github.com/adafruit/Adafruit-GFX-Library 1.12.6
+  - https://github.com/PaulStoffregen/XPT2046_Touchscreen 1.4
+- resolved task watchdog startup timeouts during WiFi connection (issue in ScreenError() watchdog feed)
+- resolved CP mode start-up issue
+- resolved minor compile issues - Windows and Linux (Mozzie-AU)
 V1.3 - March 2023
 General
 - Re-calibration is required after V1.3 changes, as the software version number has changed due to additional items being stored in the EEPROM profile.

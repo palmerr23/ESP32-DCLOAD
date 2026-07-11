@@ -63,7 +63,7 @@ char * getTelnet(void)
 		{
           if(tServerClient) // disconnected
 			  tServerClient.stop();
-          tServerClient = tServer.available();
+          tServerClient = tServer.accept();
           if (!tServerClient) 
 		  {
 			  Serial.println("Telnet 'client available' is broken");
@@ -107,7 +107,7 @@ bool putTelnet(char * sbuf)
 		{
           if(tServerClient) // disconnected - try to reconnect
 			  tServerClient.stop();			  
-          tServerClient = tServer.available();
+          tServerClient = tServer.accept();
           if (!tServerClient) 
 		  {
 			  Serial.println("Can't reconnect to Telnet client.");
@@ -130,63 +130,6 @@ void setupTelnet(){
   tServer.setNoDelay(true);
   Serial.printf("Telnet (SCPI): %i to connect\n", TELNET_PORT);
 }
-/*
-// ********** change input to non-blocking code....
-void handleTelnetx() 
-{
-	char *telptr;
-	int i;
-	if (tServer.hasClient())
-	{      
-        //check for free/disconnected 
-        if (!tServerClient || !tServerClient.connected())
-		{
-          if(tServerClient) // disconnected
-			  tServerClient.stop();
-          tServerClient = tServer.available();
-          if (!tServerClient) 
-			  Serial.println("available broken");
-          Serial.print("New client: ");
-          Serial.print(i); Serial.print(' ');
-          Serial.println(tServerClient.remoteIP());          
-        }           
-    }
-    //check client for data  
-	if (tServerClient && tServerClient.connected())
-	{
-		telnetClient = tServerClient.remoteIP();
-		if(tServerClient.available())
-		{
-		  //get data from the telnet client and push it to the UART
-			  Serial.printf("Incoming message from telnet\n");
-			  telptr = telIbuf; 
-			  while(tServerClient.available()) 
-					*(telptr++) = tServerClient.read();
-				*telptr = '\0';
 
-				//echo to Serial
-				Serial.println(telIbuf);
-		// write a standard response - will be written back by SCPI
-				strcpy(sbuf, "Platypus,PSU01,S00001,V1.01XX\n");
-				tServerClient.write(sbuf, strlen(sbuf));
-				delay(1);		
-		}	
-	}		
-}
-
-void handleTelnet()
-{
-	char * telptr;
-	bool sentOK;
-	if ((telptr =  getTelnet()) != NULL)
-	{
-			Serial.printf("Telnet cmd[%s]\n", telptr);
-			strcpy(sbuf, "Platypus,PSU01,S00001,V1.01XX\n");
-			sentOK = putTelnet(sbuf);
-			if (!sentOK)
-				Serial.printf("Telnet response not sent\n");
-	}
-}
-*/
 
 #endif /* MYHTTP_H */

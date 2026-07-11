@@ -54,7 +54,7 @@ uint8_t crc8(uint8_t *data, uint16_t data_length) {
 #define VAL_CHGD -1
 #define VAL_CHGD_NOEE 2
 #define VAL_CHGD_REMOTE 3
-void valChanged(int8_t cmd){
+void valChanged(int16_t cmd){
 	//Serial.print("V");
 	switch (cmd) 
 	{

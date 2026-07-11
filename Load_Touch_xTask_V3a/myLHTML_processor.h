@@ -1,6 +1,6 @@
 //Processor code 
 // Replaces placeholders in the web page literal code
-// Control element numbers have first three chars identify control, 5th char = channel number [0.. INCHANS-1]
+// Control element numbers have first three chars identify control, 5th char = channel number [0.. SCREENS-1]
 #ifndef MYLHTTPX_H
 #define MYLHTTPX_H
 //#include <sstream>

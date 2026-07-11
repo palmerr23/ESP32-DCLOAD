@@ -13,24 +13,15 @@
 #define IDN_FIRMWARE SOFT_VERSION
 #define IDN_OPTS "NONE"
 
-#define IS_ESP32
-
-// diagnostics
-//#define CDEBUG2
-
-#define CS_PIN        10
-
-#ifdef IS_ESP32
-  #define VPIN        35   // ADC1_6 Coarse control VO
-  #define VPIN_S      34   // ADC1_7
-  #define IPIN        32   // ADC1_4
-  #define TPIN        33   // ADC1_5
-  #define DACPIN      25   // FINE CONTROL VO
-  #define TESTPIN     16   // Diagnostic only
-  #define KELPIN      16   // voltage measurement mode
-  #define EEPROM_SIZE 4096 // bytes available
- // #include "myLESP32ADC.h"
-#endif
+#define CS_PIN      10
+#define VPIN        35   // ADC1_6 Coarse control VO
+#define VPIN_S      34   // ADC1_7
+#define IPIN        32   // ADC1_4
+#define TPIN        33   // ADC1_5
+#define DACPIN      25   // FINE CONTROL VO
+#define TESTPIN     16   // Diagnostic only
+#define KELPIN      16   // voltage measurement mode
+#define EEPROM_SIZE 4096 // bytes available
 
 // main loop task timing
 #define PROCESS_EVERY_VF    1     //  1 mS set dynamic values (inc slew).
@@ -403,7 +394,7 @@ struct ADCcounts {
 #define TEMP_FANSTART 	(28.0)  // fan idles below this (deg C)
 #define TEMP_FANFULL 	(35.0)  // fan at 100%
 #define TEMP_SHUTDOWN 	(65.0)  // turn output off
-#define FAN_MIN_PWM		30	// percent
+#define FAN_MIN_PWM		40	// percent
 // settings to save between sessions
 // each 
 struct transient {

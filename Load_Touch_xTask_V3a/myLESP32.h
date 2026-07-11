@@ -2,7 +2,7 @@
 #define  MYMESP32_H
 /* HTTP 
 */
-#define INCHANS 8 // kill me!
+//#define SCREENS 8 // kill me!
 
 
 // UDP or web client slave status - see myMESP32.h
@@ -18,7 +18,6 @@
 #define SLAVE_ALL	 0xF0		// not sure if this is used
 
 // diagnostics
-//#define CDEBUG2
 #define MAXSLAVES 12				// no point in having more controllers than outputs!?
 // Master only
 // VAL_CHGD_MASK,VAL_BCAST_MASK, VAL_EE_MASK in vChanged are ignored here
@@ -155,10 +154,12 @@ void doneChange(uint16_t flags = VAL_ALL_BITS, uint8_t clientType = SLAVE_UDP)
 */
 // hasChanged() and changes() do no slave[x] processing 
 // is this flag set? 
+/*
 bool hasChanged(uint16_t cmd = VAL_ALL_BITS)	
 {
 	return (x_changed & cmd);
 }
+*/
 /*
 bool hasChangedC(uint16_t cmd = VAL_ALL_BITS, uint8_t type = SLAVE_UDP)	
 { 
@@ -170,6 +171,7 @@ bool hc = false;
 }
 */
 // what changes are pending?
+/*
 uint16_t changes(uint16_t flags = VAL_ALL_BITS)
 { 
 	return x_changed & flags;
@@ -184,20 +186,7 @@ void printActiveChanges(uint16_t x_changed){
     Serial.print("VAL_EE_MASK ");
   if(x_changed & VAL_BCAST_MASK)
     Serial.print("VAL_BCAST_MASK ");
-/*
-  if(x_changed & VAL_AUDIO_MASK)
-    Serial.print("VAL_AUDIO_MASK ");
-  if(x_changed & VAL_CNAME_MASK)
-    Serial.print("VAL_CNAME_MASK ");
-  if(x_changed & VAL_ONAME_MASK)
-    Serial.print("VAL_ONAME_MASK ");
-  if(x_changed & VAL_FADER_MASK)
-    Serial.print("VAL_FADER_MASK ");
-  if(x_changed & VAL_FADER_BLOCK_MASK)
-    Serial.print("VAL_FADER_BLOCK_MASK ");    
-  if(x_changed & VAL_GAIN_MASK)
-    Serial.print("VAL_GAIN_MASK ");
-*/
+
   Serial.println();
 }
 void printClientChanges(int clientX)
@@ -215,19 +204,19 @@ void printClientChanges(int clientX)
         printActiveChanges(slave[i].vChanged);
       }
 }
-
+*/
 // calculated display levels for the HTTP interface
 // these are calculated on the fly every time a level packet is requested.
 // they will relate to the current screen of the requesting Host.
 /*struct outLevels {
-  float outLevel[INCHANS];
+  float outLevel[SCREENS];
   float outlevelM;
   int scrn;  // may not be used
 } oLevels;
 */
 //struct faderPkt mySets;
-//bool pfl[INCHANS];
-//bool chOn[INCHANS];
+//bool pfl[SCREENS];
+//bool chOn[SCREENS];
 //short  highButton = -1;	// currently selected screen button
 //instID myID = {{192,168,50,1}, {192,168,50,1},{192,168,50,0}, LOCAL_SS, LOCAL_PASS, ESPNETNAME, ESPNETPW, true, 1, 7, ISSLAVE, "MONI"};
 //settings pSetA ; // do we still use this????

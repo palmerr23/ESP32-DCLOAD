@@ -1,8 +1,9 @@
-// V1.3
+// V1.3aR5
 //#define PROD
 #define SOFT_VERSION 4
 #define KELVIN_MOD // only redefines a few default calibration settings
 /* REMEMBER TO SET DISPLAY TYPE BEFORE COMPILING
+ * compile with Board "ESP32 Dev Module" and  Partition "Minimal SPIFFS (1.9Mb with OTA / 128kB SPIFFS)"
  * controlTask() is driven by ADS1115 interrupts, watchdog in main code for lost interrupt 
 */
 #define  ILI9488 // select one
@@ -11,14 +12,13 @@
 //#define BOARD_D 
 
 // diagnostic options
-#define WIFI    // faster startup for testing if WiFi is off. Also disbles serial SCPI?
-#define REALNET // use network credentials from a file for WiFi testing
+#define WIFI    // faster startup for testing if WiFi is off. May also disable serial SCPI.
+//#define REALNET // use network credentials from a file for WiFi testing
 //#define NO_ERRORS // don't show screen Error messages - for testing basic TFT functions
 //#define C_DEBUG // slow down control execution and enable serial diagnostics, for testing
 #define PROCESS_EVERY_CDEBUG 20 //  
 //#define PRINT_DIAGNOSTICS
 //#define SOATEST // reduce I, V and P max values for testing SOA code. Recompile with different software version when changing this.
-bool _printMe = true;   // diagnostic prints during testing 
 // end of diagnostic settings
 
 #ifdef PROD
@@ -27,14 +27,16 @@ bool _printMe = true;   // diagnostic prints during testing
   #undef PRINT_DIAGNOSTICS
   #undef SOATEST 
   #undef REALNET
-  _printMe = false;
+  bool _printMe = false;
+#else
+  bool _printMe = true;   // diagnostic prints during testing 
 #endif
 
 // ADS watchdog
 #define ADS_WATCHDOG 10    // (mS) restart ADS cycle interrupts get lost (ADS interrupt cycle ~ 1.2mS @ 860sps)
 volatile long adsLastInt;
 volatile long controlTime = 0;
-long loops = 0;
+volatile long controlLoops = 0, lastLoops = 0;
 int adsCount = 0;
 bool startUp = true;
 bool _scrTouched = false;  // was the screen touched?
@@ -60,7 +62,8 @@ bool myBlink = false; // set by timer at same time as regular redraw
 bool testPin = false;
 
 #include "myLScreenDraw.h"
-#include "myLWifi.h"
+//#include "myLWifi.h"
+#include "myLWifi_multi.h"
 #include "myLTelnet.h"
 #include "myLUDP.h"
 //#include "myLHTTP.h"
@@ -92,9 +95,9 @@ xTimerHandle controlCycleTimer;
 #define TIMER_TICK  1     // mS per tick. 
 #define TIMER_CYCLE 1     // Control cycle time. Something less than the ADS measurement cycle to allow intermediate ESP readings.
 
-#define C_STACK    12000  // Stack size for control task
-#define TASK_CPU  1     // beware of changing this from the same core as Arduino - may cause watchdog errors 
-#define TASK_PRI  4   // higher number than loop() == 1
+#define C_STACK   18000  // Stack size for control task
+#define TASK_CPU  1      // beware of changing this from the same core as Arduino - may cause watchdog errors 
+#define TASK_PRI  15     // higher number than loop() == 1
 
 long controlStart;
 
@@ -103,33 +106,37 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("*********** Starting DC Load Control *************");
-  /******** TFT & TOUCH *****************/
+
   screenBegin();
 #ifdef SPLASH
   splashScreen();
 #endif
+
   if (!post())
      (postBuf, MY_RED, 10, false); // 3 x I2C for single (7 for dual);
- /*   EEPROM.begin(EESIZE + 5 ); // maybe a few additional bytes will stop the kernel panic restart on save
+
+for(int i = 0; i < NUM_CALS; i++)
+    hal_defs[i] = halCal[i];  // copy factory defaults into temp storage in case a reset is needed
+/*
+  EEPROM.begin(EESIZE + 5 ); // maybe a few additional bytes will stop the kernel panic restart on save
   if (!setupEE()) // read values from EEPROM
   {
       screenError("Bad EEPROM read\nFailed factory reset\nAborting", MY_RED, 10, false);  
       // should probably shut things down
   }
-  */
-  for(int i = 0; i < NUM_CALS; i++)
-    hal_defs[i] = halCal[i];  // copy factory defaults in case a reset is needed
-  if(!LittleFSstart())
-    screenError("File system failure", MY_RED, -1, true); 
-//Serial.println("SPIFFS started"); listDir();
 
-//Serial.println("After getComms"); listDir();
- // settings from EEPROM
+*/
+ // EEPROM.begin(EESIZE + 5); Serial.println("Factory reset"); factory_reset(); // When all else fails - uncomment and reset EEPROM
   if(!beginEE())
   {
      Serial.println("EEPROM unreadbale after factory reset - should possibly halt!");
      screenError("Unable to read EEPROM after\nFactory reset", MY_RED, -1, true);
   }
+
+  if(!LittleFSstart())
+    screenError("File system failure", MY_RED, -1, true); 
+
+  Serial.printf("tsRot %i, scRot %i\n", sc.tsRot, sc.scrRot);
   ts.setRotation(sc.tsRot); // some displays have a rotated touch panel (CAL menu)
   tft.setRotation(sc.scrRot); // some displays have a rotated screen (CAL menu)
   
@@ -166,21 +173,30 @@ void setup() {
    controlStart = micros();
    adsReady = false;
    adsReadStart(); // start the ADS (restarted after interrupt in controlTask, watchdog in loop())
+ /* Serial.print("<");
+  esp_task_wdt_config_t wdt_config = {
+    .timeout_ms = 10000,     // 10 seconds in milliseconds
+    .idle_core_mask = 0,     // don't watch idle tasks
+    .trigger_panic = false    // reset (panic) if watchdog fires
+  };
+  esp_task_wdt_init(&wdt_config);
 
-  // Once controlTask() is running, no I2C commands should be issued in any other routines to avoid conflicts
-  xTaskCreatePinnedToCore(controlTask, "cTask", C_STACK, NULL, (TASK_PRI | portPRIVILEGE_BIT ), &controlTaskHandle, TASK_CPU);
+  Serial.print(">");
+    */
+   // Once controlTask() is running, no I2C commands should be issued in any other routines to avoid conflicts
+    xTaskCreatePinnedToCore(controlTask, "cTask", C_STACK, NULL, (TASK_PRI | portPRIVILEGE_BIT ), &controlTaskHandle, TASK_CPU);
+
   //controlCycleTimer = xTimerCreate("timerC", pdMS_TO_TICKS(TIMER_TICK), true, (void*)0, controlCallback); // auto reload timer
   //xTimerStart(controlCycleTimer, TIMER_CYCLE);
-  // Serial.println("xTask2");delay(1000);
 
-  //ads.adsStartSingleDiffRdy(adsConfig, ADSMUX_START);
-  //adsLastInt = millis();
-  //Serial.println("xTask3");delay(1000);
+ Serial.print("#");
   delay(100); // let control stabilise
   currentZeroCal(); // calibrate zero current
+  Serial.print("@");
 #ifdef WIFI
   // remote command handling - Telnet, UDP, SCPI
   //Serial.println("Starting WiFi");
+  //enableLoopWDT();
   if(myID.autoConnect)
   {
     wifiBegin();
@@ -189,44 +205,32 @@ void setup() {
     webServerStart();  
     UDPstart();// Serial.printf("UDP start %s\n",(UDPstart())?"OK":"BAD");
   }
-  SCPI_setup();
+  Serial.print(">");
 #endif
-  // attach the channel to the GPIO to be controlled
-  //ledcAttachPin(PWM_PIN, PWMChannel);  
+  SCPI_setup();
+   // configure Fan PWM
   ledcAttach(PWM_PIN, PWM_FREQ, PWM_RESOLUTION);
-  // configure  PWM functionalitites
-  //ledcSetup(PWMChannel, PWM_FREQ, PWM_RESOLUTION);
   setFan(70);
   redrawScreen();
   //printDaughterCal();
   //printHalCal();
- getESPviReadings();
- //esp_task_wdt_init(10, true); // change the watchdog to 10 seconds
- //esp_task_wdt_config_t wdt_config = {
- //   .timeout_ms = 10000,     // 10 seconds in milliseconds
- //    .idle_core_mask = 0,     // don't watch idle tasks
- //   .trigger_panic = true    // reset if watchdog fires
-//};
-//esp_task_wdt_init(&wdt_config);
-//esp_task_wdt_add(NULL);
+  getESPviReadings();
+
+  //esp_task_wdt_init(10, true); // change the watchdog to 10 seconds
+  //esp_task_wdt_add(NULL);
  //Serial.printf("Task subscribed to WDT %s\n", (esp_task_wdt_status(NULL) == ESP_OK)? "OK" : "BAD");
  //Serial.printf("fmap %3.2f\n", fmap(5, 0.0, 10.0, 0, 20));
   Serial.println("******** Done setup *******");
-  kelvinTest();
+  //kelvinTest();
   Serial.println("SCPI Command?");
   delay(50);  
   lTimer =  mTimer = fTimer = vfTimer = vTimer = cTimer = tTimer = millis();
   enableLoopWDT();  // should already be done automatically
 }
 int count = 0;
+
 #include "myLTouchProcess.h"
-/*
-static void controlCallback(xTimerHandle pxTimer)
-{
-    //Serial.print("|");
-    vTaskResume(controlTaskHandle);
-}
-*/
+
 // ADS finished conversion 
 // - resumes controlTask()
 // - watchdog in loop()
@@ -235,7 +239,7 @@ void IRAM_ATTR ads_ISR(){
   //portENTER_CRITICAL_ISR(&mux);
   adsReady = true;
   adsLastInt = millis();
-  adsISRcount++; 
+  adsISRcount = adsISRcount + 1;
   //portEXIT_CRITICAL_ISR(&mux);
   xYield = xTaskResumeFromISR(controlTaskHandle);
   portYIELD_FROM_ISR(xYield);
@@ -255,8 +259,9 @@ long ADStLast;
 long screenHoldStart = 0;
 void loop() /**************** LOOP ***************************/
 { 
-  if(!(esp_task_wdt_reset() == ESP_OK))
-    Serial.println("WDT not fed.");;
+
+
+ // if(!(esp_task_wdt_reset() == ESP_OK))    Serial.println("WDT not fed.");;
  //  fineTime = micros();
    /* very fast stuff */    
 #ifndef ALTENCODER 
@@ -283,7 +288,7 @@ void loop() /**************** LOOP ***************************/
         if(pSet.modeB != MODE_BAT)
            dynSet = pSet; // values may have changed - BAT test takes care of this explicitly
     }    
-     feedLoopWDT(); yield(); // let ESP32 background tasks run
+     MY_FEED_LOOP_WDT(); yield(); // let ESP32 background tasks run
      
     if(millis() > fTimer + PROCESS_EVERY_F)
     {   
@@ -298,7 +303,7 @@ void loop() /**************** LOOP ***************************/
       butR.loop();
       processOnOffSw();
     }
-    feedLoopWDT();
+    MY_FEED_LOOP_WDT();
     yield(); 
 
     long adsL = adsLastInt;   
@@ -311,7 +316,7 @@ void loop() /**************** LOOP ***************************/
       if((millis() - adsLastInt) > ADS_WATCHDOG) // && !holdScreen???
       {
 #ifndef NO_ERRORS
-         Serial.printf("*** Lost ADS interrupt, restart after ISR %i mS, last restart %imS {ISR %i). ", millis() - adsLastInt, millis() - ADStLast, adsISRcount );
+         Serial.printf("*** Lost ADS interrupt, restart after ISR %i S, last restart was %3.2fmS {ISR count %i). ", millis() - adsLastInt, (millis() - ADStLast)/1000.0, adsISRcount);
 #endif
          // kick the ADS conversion process
          portENTER_CRITICAL_ISR(&mux); // avoid interrupts during processing
@@ -319,7 +324,9 @@ void loop() /**************** LOOP ***************************/
            vTaskResume(controlTaskHandle);     
          portEXIT_CRITICAL_ISR(&mux);
          ADStLast = millis();
+#ifndef NO_ERRORS
          Serial.println("Restarted");
+#endif
       }
 #ifdef WIFI
       process_SCPI(); // do this faster than we send out messages - or deadly embrace can occur.
@@ -330,7 +337,7 @@ void loop() /**************** LOOP ***************************/
       addLog(false); // log after mode and timing analysis; don't force log entry 
     }
    }
-   feedLoopWDT();
+   MY_FEED_LOOP_WDT();
    yield(); 
        
    if(millis() > mTimer + PROCESS_EVERY_M)
@@ -375,7 +382,7 @@ void loop() /**************** LOOP ***************************/
         drawReadings(); // only one per cycle
      count++;
   }
-  feedLoopWDT();
+  MY_FEED_LOOP_WDT();
   yield(); 
   
   
@@ -443,13 +450,15 @@ void loop() /**************** LOOP ***************************/
         updateZero = false;
      }
   } 
-  feedLoopWDT();
+  MY_FEED_LOOP_WDT();
   yield(); 
 
   
   if(millis() > vTimer + PROCESS_EVERY_VL)
   {
     // Serial.printf("\nLoop %2.2f mS; ADS %2.2f mS\n", (float)(millis() - vTimer)/lcount, (float)(millis() - vTimer)/adsCount);
+   // Serial.printf("\nControl loops %li (%li)\n", controlLoops, controlLoops - lastLoops);
+    //lastLoops = controlLoops;
     vTimer = millis();          
     adsCount = lcount = 0;
 #ifdef WIFI
@@ -461,7 +470,7 @@ void loop() /**************** LOOP ***************************/
      //Serial.printf("Active SCPI streams %i, LLR %5.2f\n",UDPcnt, localLimitRatio);
      //Serial.printf("Limit:  %i [%i], Track: %i [%i], Output: %i\n", pContA.limitInd, pSet.limitOn, pContA.trackInd, pSet.trackOn, pSet._outOn);
     //Serial.printf("Setpoint Nom: %5.2F / %5.2F, act: %5.2F\n", pSet.voltage, pContA.vSetpointR, pContA.vSetpointX);
-     //Serial.printf("Amps %3.3f, DAC %i, ampsToDAC %i\n", meas.ADSamps, _lastDAC, ampsToDAC(meas.ADSamps));
+    // Serial.printf("Amps %3.3f, DAC %i, ampsToDAC %i\n", meas.ADSamps, _lastDAC, ampsToDAC(meas.ADSamps));
      //Serial.printf("saveEE ind %i\n",needToSaveEE);
     
     //printDynSet();
@@ -472,10 +481,10 @@ void loop() /**************** LOOP ***************************/
     //printSTEP();
     //Serial.printf("Heartbeat: Output %s\n", (_outOn) ? "On" : "Off");
     //Serial.printf("Output %s\n", (_outOn) ? "On" : "Off");
-   // Serial.printf("pMaxOp %2.2f, dynSet.current %2.2f, meas.ADSvolts %3.2f, calc pwr %3.2f, calc cur %2.2f\n", pMaxOp, dynSet.current, meas.ADSvolts, dynSet.current * meas.ADSvolts, pMaxOp / meas.ADSvolts);
+   //Serial.printf("pMaxOp %2.2f, dynSet.current %2.2f, meas.ADSvolts %3.2f, calc set pwr %3.2f, calc Max cur %2.2f\n", pMaxOp, dynSet.current, meas.ADSvolts, dynSet.current * meas.ADSvolts, pMaxOp / meas.ADSvolts);
   // Serial.printf("Volts: ADS count = %i, %2.3fV\n", ADCcount.ADSv, meas.ADSvolts);
    //Serial.printf("DAC: %i\n", _lastDAC);
-  // Serial.printf("ESPamps %2.2f [%i], ADSamps %2.2f, ", meas.ESPamps, ADCcount.ESPa, meas.ADSamps );
+  //Serial.printf("ESPamps %2.2f [%i], ADSamps %2.2f, ", meas.ESPamps, ADCcount.ESPa, meas.ADSamps );
   // Serial.printf("Volts: ADS %2.3fV[%2.3fV](%i)\n",  meas.ADSvolts, meas.ADSvoltsAvg, ADCcount.ADSv);
   // printICal();
   // printVCal();
@@ -489,7 +498,7 @@ void loop() /**************** LOOP ***************************/
   //printADSavg();
   }
   lcount++;
-  feedLoopWDT();
+  MY_FEED_LOOP_WDT();
   yield(); 
   
    /*
@@ -597,10 +606,12 @@ void printICal(void)
 }
 void printADSavg(void)
 {
+#ifndef NO_ERRORS
     Serial.printf("ADsAvg %3.3f [%3.3f]: ", meas.ADSvoltsAvg, meas.ADSvolts);
     for(int i = 0; i < NUM_AVG_VOLTS; i++)  
         Serial.printf("%2.3f, ",batVolts[i]);
     Serial.println();
+#endif
 }
 void kelvinTest()
 {

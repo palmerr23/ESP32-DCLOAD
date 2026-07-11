@@ -195,6 +195,7 @@ void nextSeq(uint8_t mode, uint8_t but)
 // process touch screen, switches and encoder
 bool firstCall = true;
 short procBut = -1, oldButton = -1;
+// return  touched: one of the active blocks, or anywhere on screen.
 bool processTouchSwEnc(bool anyTouch = false)
 {
   short blockT, lsv = -1, retVal, cmd;

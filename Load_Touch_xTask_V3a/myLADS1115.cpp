@@ -311,17 +311,6 @@ int16_t Adafruit_ADS1015::readADC_Differential_2_3() {
   uint16_t res =  readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT);// >> m_bitShift;
   //if (m_bitShift == 0) {
     return (int16_t)res;
-	/*
-  } else {
-    // Shift 12-bit results right 4 bits for the ADS1015,
-    // making sure we keep the sign bit intact
-    if (res > 0x07FF) {
-      // negative number - extend the sign to 16th bit
-      res |= 0xF000;
-    }
-    return (int16_t)res;
-  }
-  */
 }
 
 /**************************************************************************/
@@ -394,17 +383,6 @@ int16_t Adafruit_ADS1015::getLastConversionResults() {
   uint16_t res = readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT);// >> m_bitShift;
   //if (m_bitShift == 0) {
     return (int16_t)res;
-	/*
-  } else {
-    // Shift 12-bit results right 4 bits for the ADS1015,
-    // making sure we keep the sign bit intact
-    if (res > 0x07FF) {
-      // negative number - extend the sign to 16th bit
-      res |= 0xF000;
-    }
-    return (int16_t)res;
-  }
-  */
 }
 // RP - these routines use the dataReady pin on the ADS to signal converion complete.
 // ADS1115 values - need to check high threshold for ADS1015

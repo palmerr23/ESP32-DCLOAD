@@ -87,7 +87,7 @@ void webServerStart()
 	//	Serial.printf(":R%i ",request->client()->remotePort());
 	//	Serial.printf(":L%i\n",request->client()->localPort());
 	//	Serial.printf(":L%i\n",request->client()->localPort());
-    request->send_P(200, "text/html", index_html, processor);
+    request->send(200, "text/html", index_html, processor);
   });
   
   // settings screen page 
@@ -99,40 +99,25 @@ void webServerStart()
 	_thisScreen = getScreen(request);
 	//printParams(request);
     slashRequest(request, _thisClient);     
-    request->send_P(200, "text/html", settings_html, processor);
+    request->send(200, "text/html", settings_html, processor);
   });
 
   //fast GET from web client: send readings screenID and other data as needed 
   server.on("/readings", HTTP_GET, [](AsyncWebServerRequest *request)
   { 
     char scrn[2] = "M";      // default to main screen
-  bool faderCh, padCh, namesCh;
 
-  //Serial.print("/readings ");
- //   	printParams(request);
 	_thisClient = getClient(request);
 	_thisScreen = getScreen(request);
-	//Serial.printf("Get Screen %c, client %i\n",_thisScreen, _thisClient);
-	//printParams(request);
-    //scrn[0]= currentWebScreen;
+
 	strcpy((char *)&JSONstring, "{\n");
   makeJSONreads(_thisScreen, _thisClient); // may only have "Screen"
-	//String temp = JSONstring;
- /*	Serial.print("JSON R|");
-	Serial.println(JSONstring); 
-	//Serial.print("|\n");
- */		
 
 	strcat((char *)&JSONstring, "\n");
 	makeJSONsets(_thisScreen, _thisClient); 
 	strcat((char *)&JSONstring, "\n}");
 
-	//Serial.print("JSON |");
-	//Serial.println(JSONstring);
-	//Serial.print("|\n");
-	//dumpHex((void *)JSONstring,  strlen(JSONstring));
-/*   */
-    request->send(200, "text/plain", JSONstring);
+  request->send(200, "text/plain", JSONstring);
   });
 
   // input controls from Web page
@@ -175,13 +160,6 @@ void webServerStart()
 #ifdef SAVEBATLOG        
       }
 #endif
-      /*
-      if (r == 0) {
-        Serial.printf("Chunk read completed, read returned 0\n", r, maxLen);
-      } else {
-        Serial.printf("Chunk read returned %d bytes, buffer=%d bytes\n", r, maxLen);
-      }
-      */
       return r;
     });
     request->send(response);
@@ -266,23 +244,7 @@ int getClient(AsyncWebServerRequest *request)
 	//Serial.printf("SessionID = |%s| %i\n", bufS.c_str(), session);
 	_thisSession = session;
 	
-	/*
-	if(request->hasParam(PARAM_CLIENT_CMD, true)) // POST 
-	{
-		//Serial.print(" CL_POST ");
-		bufC = request->getParam(PARAM_CLIENT_CMD, true)->value();	
-		gotClient = true;
-	}
-	
-	if(request->hasParam(PARAM_CLIENT_CMD)) // GET 
-	{
-		//Serial.print(" CL_GET ");
-		bufC = request->getParam(PARAM_CLIENT_CMD)->value();	
-		gotClient = true;
-	}
-	*/
-	
-	 if (gotSession && session >= 0) // ignore requests with no legitimate sessionID attached
+		 if (gotSession && session >= 0) // ignore requests with no legitimate sessionID attached
      {       
 		 int i; // = bufC.toInt();
 		//Serial.printf("Request from session [%i]\n", session);
@@ -291,9 +253,6 @@ int getClient(AsyncWebServerRequest *request)
 			{
 				slave[i].status = SLAVE_ACTIVE;   // see ageSlaves()
 				slave[i].lastMessage =  millis();
-				// if master re-starts, re-enter parameters from live HTTP sessions.
-				//slave[i].type = SLAVE_HTTP;
-				//slave[i].slaveIP = UDPsourceIP = request->client()->remoteIP(); 
 				return i; // client ID
 			}
 	 
@@ -346,17 +305,7 @@ int registerHTTPslave(AsyncWebServerRequest *request, int session)
 			slave[i].lastMessage =  millis();
 			return i;
 		}
-/*		
-	for (i = 0; i < MAXSLAVES; i++) // a dud one with 0.0.0.0 IP?
-		if(slave[i].slaveIP[0] == 0)
-		{
-			slave[i].type = SLAVE_HTTP;
-			slave[i].slaveIP = UDPsourceIP = request->client()->remoteIP(); 
-			slave[i].status = SLAVE_ACTIVE;   // see ageSlaves()
-			slave[i].lastMessage =  millis();
-			return i;
-		}
-*/
+
 	for (i = 0; i < MAXSLAVES; i++) // sleepy slave to use?
 		if(slave[i].status == SLAVE_SLEEP)
 		{
@@ -403,16 +352,7 @@ void webCommands(AsyncWebServerRequest *request)
     cs = constrain(cs, 0,7);
     int btn;
     char val1[4];
-	/*
-	bool pads = false, faders = false, names = false;
-	Serial.printf("Request /update has %i params:\n",request->params());
-    // printParams(request);
-	if(slave[_thisClient].vChanged & (VAL_CNAME_MASK | VAL_ONAME_MASK))
-		names = true;
-	// this could be improved to reduce unnecessary updates
-	if(slave[_thisClient].vChanged & (VAL_FADER_MASK | VAL_FADER_BLOCK_MASK | VAL_GAIN_MASK))
-		pads = faders = true;
-*/
+
 	screenChanged = true; 
     String inputCmd = "No cmd.";
     String inputParam1 = "No param_1.";
@@ -550,76 +490,7 @@ void webCommands(AsyncWebServerRequest *request)
 	valChanged(VAL_CHGD_REMOTE);	// update on the console screen
     
 }
-	/*
-    switch (cmd)    
-    {
-      case CMD_TOGGLE : // No longer used.        
-        Serial.print(" General toggle change.");  
-        break;
-      case CMD_SCREEN : // 2 - do not use for screen change - now handled in slashRequest()       
-        break;
-      case CMD_PAD : // 3  - decode value_1 for onb, sol or pad 
-		//valChanged(VAL_CHGD_BCAST | VAL_GAIN_MASK | VAL_FADER_BLOCK_MASK | VAL_EE_MASK, _thisClient);
-		//Serial.print(" Pad change. ");
-		// which variable to change?		
-        if(val_1[0] == 'p' && btn > 3) // Pad: no settable pads on the first 4 channels
-		{
-			;//Serial.print(" PAD ");
-			//gains.inpad = (atoi(val_2) == 1) ? bitSet(gains.inpad , btn) : bitClear(gains.inpad, btn);          
-		}
-        if(val_1[0] == 's') // SOLO
-		{
-			;//Serial.print(" SOL ");
-			//faderInfo.pfl[scrn] = (atoi(val_2) == 1) ? bitSet(faderInfo.pfl[scrn], btn) : bitClear(faderInfo.pfl[scrn], btn);          
-		}
-        if(val_1[0] == 'm') 
-		{
-			//Serial.print(" MUT ");
-			// MUTE: channel OFF = mute ON - inverted setting logic
-			if(scrnChar > '8') // Input screen
-				;//gains.IchOn = (atoi(val_2) == 1) ? bitClear(gains.IchOn , btn) : bitSet(gains.IchOn, btn);					
-			else
-				;//faderInfo.chOn[scrn] = (atoi(val_2) == 1) ? bitClear(faderInfo.chOn[scrn] , btn) : bitSet(faderInfo.chOn[scrn], btn);				
-		}
-
-       // Serial.printf(" Scrn %i, Channel %i, Inpad 0x%2x, IchOn 0x%2x | scrn %c, pfl 0x%2x, OchOn 0x%2x\n", 
-	   //				scrn, btn, gains.inpad, gains.IchOn, scrnChar, faderInfo.pfl[scrn], faderInfo.chOn[scrn] );         
-        break;
-      case CMD_FADER : //4
-        //Serial.printf("Fader change. scrn [%c,%i], fader %i,  val %2.3f\n",  scrnChar, cs, btn, atof(val_2));  
-        if(scrnChar == 'N') // change gain        
-        {  
-		  //Serial.print("-G-");
-		  //gains.gain[btn] = atof(val_2); 
-		 // valChanged(VAL_CHGD_BCAST | VAL_GAIN_MASK | VAL_EE_MASK, _thisClient);
-		}
-        else // 0..7
-        {
-		  //Serial.print("-F-");
-		 // valChanged(VAL_CHGD_BCAST | VAL_FADER_BLOCK_MASK | VAL_EE_MASK, _thisClient);
-          if(btn < INCHANS)
-           ;//  faderInfo.fader[btn][cs] = atof(val_2);
-           else // will be the Master fader
-           ; // faderInfo.mFader[cs]= atof(val_2);
-        }
-        break;
-      case CMD_INAME : // 5
-		val_2[NAMELEN-1] ='\0'; //truncate to legal length
-       // Serial.print("Input Name change."); 
-		//valChanged(VAL_CHGD_BCAST | VAL_CNAME_MASK | VAL_EE_MASK, _thisClient);
-        if(btn < INCHANS) // don't change Master
-          //strcpy(inChan.channelName[btn], val_2);
-        break;
-      case CMD_ONAME : // 6
-	   // val_2[NAMELEN-1] ='\0'; //truncate to legal length
-	  //  valChanged(VAL_CHGD_BCAST | VAL_ONAME_MASK| VAL_EE_MASK, _thisClient);
-        //Serial.print("Output Name change.");          
-      //  strcpy(outChan.name[cs], val_2);
-        break;
-      default:
-        Serial.printf("Unknown command %i\n",cmd);
-    }
-*/
+	
 
 /* JSON
  * Readings only
@@ -635,21 +506,7 @@ void makeJSONreads(char screen, int client)
 	// printParams(request);
 	//Serial.printf("/levels to %i: flags 0x%4x: ", client, slave[client].vChanged);
 	//printClientChanges(client);
-/*
-	if(slave[client].vChanged & (VAL_CNAME_MASK | VAL_ONAME_MASK))
-	{
-		//names = true;
-		//doneChange(VAL_CNAME_MASK | VAL_ONAME_MASK, client);
-		Serial.printf("/readings NAMES to %i: flags 0x%4x\n", client, slave[client].vChanged);
-	}
-	// this could be improved to reduce unnecessary updates
-	if(slave[client].vChanged & (VAL_FADER_MASK | VAL_FADER_BLOCK_MASK | VAL_GAIN_MASK))
-	{
-		//pads = faderGains = true;
-		//doneChange(VAL_FADER_MASK | VAL_FADER_BLOCK_MASK | VAL_GAIN_MASK, client);
-		Serial.printf("/readings FADER GAIN PADS to %i: flags 0x%4x\n", client, slave[client].vChanged);
-	}
-*/
+
 	//Serial.printf("faders & gains %i, pads %i, names %i\n", faderGains, pads, names);
   // screen first
   // only add these immediately after a screen change (or name update?)
@@ -657,20 +514,10 @@ void makeJSONreads(char screen, int client)
   //char sc = screen[0];
   
   int scn = screen - '0'; // integer version of screen 
-  if(scn < 0 || scn > INCHANS) 
+  if(scn < 0 || scn > SCREENS) 
     scn = -1;
   scrStr[0] = screen;
 	
-  //strcpy((char *)&JSONstring, "{\n");
-  /*
-  strcat((char *)&JSONstring, "\"clientID\":");
-  strcat((char *)&JSONstring,itoa(client, (char *)&nums, 10));
-  strcat((char *)&JSONstring, ",\n");
-  */
-  
-  //calcOutLevels(scn); // value will be > INCHANS for iNput screen
-  //printOutlevels();
- 
 	strcat((char *)&JSONstring, "\"screen\":\"");
 	strcat((char *)&JSONstring, scrStr);
 	strcat((char *)&JSONstring, "\",\n");
@@ -705,11 +552,6 @@ void makeJSONreads(char screen, int client)
 	{
 		; // nothing to read
 	}
-	// closing brace
-	//strcat((char *)&JSONstring, "\n}");
-    
-  // Serial.printf("JSON-reads: scrn %c |%s| %i\n", screen, JSONstring, strlen(JSONstring));  
-  // dumpHex((void *)JSONstring,  strlen(JSONstring));
     screenChanged = false;
 }
 
@@ -718,11 +560,7 @@ void makeJSONsets(char screen, int client)
 {
   char nums[16];  
   char scrStr[20] = "0";
-//  bool pads = false, faderGains = false, names = false;
-	//Serial.printf("Request /update has %i params:\n",request->params());
-	// printParams(request);
-	//Serial.printf("/levels to %i: flags 0x%4x: ", client, slave[client].vChanged);
-	//printClientChanges(client);
+
 	if(slave[client].vChanged & (VAL_CNAME_MASK | VAL_ONAME_MASK))
 	{
 		//names = true;
@@ -732,9 +570,7 @@ void makeJSONsets(char screen, int client)
 	// this could be improved to reduce unnecessary updates
 	if(slave[client].vChanged & (VAL_FADER_MASK | VAL_FADER_BLOCK_MASK | VAL_GAIN_MASK))
 	{
-		//pads = faderGains = true;
-		//doneChange(VAL_FADER_MASK | VAL_FADER_BLOCK_MASK | VAL_GAIN_MASK, client);
-		;//Serial.printf("/readings FADER GAIN PADS to %i: flags 0x%4x\n", client, slave[client].vChanged);
+
 	}
 	//Serial.printf("faders & gains %i, pads %i, names %i\n", faderGains, pads, names);
   // screen first
@@ -743,29 +579,10 @@ void makeJSONsets(char screen, int client)
   //char sc = screen[0];
   
   int scn = screen - '0'; // integer version of screen 
-  if(scn < 0 || scn > INCHANS) 
+  if(scn < 0 || scn > SCREENS) 
     scn = -1;
   scrStr[0] = screen;
-	
-  //strcpy((char *)&JSONstring, "{\n");
-  /*  
-  strcat((char *)&JSONstring, "\"clientID\":");
-  strcat((char *)&JSONstring,itoa(client, (char *)&nums, 10));
-  strcat((char *)&JSONstring, ",\n");
-*/
-  
-  //calcOutLevels(scn); // value will be > INCHANS for iNput screen
-  //printOutlevels();
-	
-	/* // makeJSONreads always used with makeJSONsets.
-	 strcat((char *)&JSONstring, "\"screen\":\"");
-	 strcat((char *)&JSONstring, scrStr);
-	 strcat((char *)&JSONstring, "\",\n");
-	 
-	 strcat((char *)&JSONstring, "\"device\":\"");
-	 strcat((char *)&JSONstring, myID.instName);
-	 strcat((char *)&JSONstring, "\"\n");
-	 */
+
 	 if(screen =='M')
 	 {
 		 // value settings
@@ -1088,43 +905,7 @@ void makeLogJSON(int whichPlot)
 	strcpy (JSONstring, logString.c_str());
   vTaskDelay(1);  // hand control to FreeRTOS to avoid watchdog trigger
 }
-/*
-// CSV log data
-// reuse JSONstring buffer
-void makeLog(void)
-{
-  char nums[32];  
- // Serial.println("Starting makeLog");
-  strcpy((char *)&JSONstring, "DC Load Log\nProject:\nDate:\nOperator:\n");
-  sprintf((char *)&nums, "Entries, %i\n",_logCount);
-  strcat((char *)&JSONstring, nums);
-  strcat((char *)&JSONstring, "Time,Voltage,Current,Setting,Mode,Function\n");
-  
-  for(int i = 1; i <= _logCount; i++)
-  {	 
-  	int j = (_logHead + i) % MAXLOG;
-  	sprintf((char *)&nums, "%i,",logData[j].time);
-  	strcat((char *)&JSONstring, nums);
-  
-  	sprintf((char *)&nums, "%3.2f,",logData[j].volts);
-  	strcat((char *)&JSONstring, nums);
-  
-  	sprintf((char *)&nums, "%3.2f,",logData[j].amps);
-  	strcat((char *)&JSONstring, nums);
-  	
-  	sprintf((char *)&nums, "%3.2f,",logData[j].setting);
-  	strcat((char *)&JSONstring, nums);
-  	
-  	sprintf((char *)&nums, "%s,",   logData[j].mode);
-  	strcat((char *)&JSONstring, nums);
-  	
-  	sprintf((char *)&nums, "%s\n",   logData[j].function);
-  	strcat((char *)&JSONstring, nums);	
-    
-    vTaskDelay(1);  // hand control to FreeRTOS to avoid watchdog trigger
-  }
-}
-*/
+
 
 // start reading log data
 // must be called once before readLog 
@@ -1133,6 +914,7 @@ bool readLogBegin(void) {
   if (_logCount < 1)
     return false;
   readLogCount = 1;
+	return true;
 }
 
 /* CSV log data
@@ -1251,7 +1033,7 @@ size_t readBatLog(char* buffer, size_t maxLen) {
     JSONstring[0] = 0;
   }
 
-  // itereate through battery log entries
+  // iterate through battery log entries
   // starting where we left off previously
   for(int i = readLogCount; i <= _batLogCount; i++) 
   {

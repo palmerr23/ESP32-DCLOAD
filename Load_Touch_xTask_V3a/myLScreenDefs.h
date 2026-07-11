@@ -68,17 +68,17 @@ const GFXfont *myFonts[NUMFONTS] = {&FONT0, &FONT1, &FONT2, &FONT3};
 #define MY_RED 0xF800
 #define MY_WHITE 0xFFFF
 #define MY_YELLOW 0xFFE0
-#define MY_GREEN RGB565(0,36,0)
-#define RGB565(R, G, B) (((R)<<11)|((G)<<5)|(B))  
-#define LIGHTYELLOW RGB565(31,63,0)
-#define YELLOW_VL RGB565(31,63,10)
-#define CYAN_L RGB565(15,45,31)
-#define CYAN_VL RGB565(21,63,31)
-#define CYAN_M RGB565(8,32,24)
-#define GREEN_L RGB565(5,63,5)
-#define CYAN_M RGB565(8,32,24)
-#define PINK_M RGB565(31,28,31)
-#define MY_ORANGE RGB565(31,31,0)	// R + G/2
+#define MY_GREEN RGB565_RP(0,36,0)
+#define RGB565_RP(R, G, B) (((R)<<11)|((G)<<5)|(B))  
+#define LIGHTYELLOW RGB565_RP(31,63,0)
+#define YELLOW_VL RGB565_RP(31,63,10)
+#define CYAN_L RGB565_RP(15,45,31)
+#define CYAN_VL RGB565_RP(21,63,31)
+#define CYAN_M RGB565_RP(8,32,24)
+#define GREEN_L RGB565_RP(5,63,5)
+#define CYAN_M RGB565_RP(8,32,24)
+#define PINK_M RGB565_RP(31,28,31)
+#define MY_ORANGE RGB565_RP(31,31,0)	// R + G/2
 // special colours
 #define VOLT_COL LIGHTYELLOW
 #define AMP_COL GREEN_L
@@ -87,28 +87,28 @@ const GFXfont *myFonts[NUMFONTS] = {&FONT0, &FONT1, &FONT2, &FONT3};
 #define TEMP_COL 0x0F9CB
 // screen background
 #define BGCOL 0 
-#define BGHIGH RGB565(5,11,4)  
-#define MIDBG RGB565(5,11,4) 
+#define BGHIGH RGB565_RP(5,11,4)  
+#define MIDBG RGB565_RP(5,11,4) 
 // value text
 #define TEXTCOL  MY_YELLOW
 #define HIGHLIGHTCOL MY_WHITE
 //menu button items
-#define BTEXTCOL RGB565(20,36,20) //light grey
+#define BTEXTCOL RGB565_RP(20,36,20) //light grey
 #define BHIGHCOL 0xffff  //LIGHTYELLOW // MY_YELLOW // ILI9341_BLACK 
 
 // menu button backgrounds
 #define BBORDHIGH BHIGHCOL
 #define BBORD BGCOL
-#define BBGHIGH RGB565(0,14,28) // MED blue
-#define BBXHIGH RGB565(0,0,20)  // DK blue
-#define BBSHIGH RGB565(20,10,0) // MED ORANGE
+#define BBGHIGH RGB565_RP(0,14,28) // MED blue
+#define BBXHIGH RGB565_RP(0,0,20)  // DK blue
+#define BBSHIGH RGB565_RP(20,10,0) // MED ORANGE
 // mode buttons
 #define BONCOL MY_WHITE
-#define BBMHIGH RGB565(0,45,0) // bright green
-#define BBMXHIGH RGB565(3,20,0) // med green
+#define BBMHIGH RGB565_RP(0,45,0) // bright green
+#define BBMXHIGH RGB565_RP(3,20,0) // med green
 // cal buttons
-#define BBRHIGH RGB565(31,0,0)
-#define BBRXHIGH RGB565(15,0,0)
+#define BBRHIGH RGB565_RP(31,0,0)
+#define BBRXHIGH RGB565_RP(15,0,0)
 
 // error screen backgrounds
 #define ERR_BG_A MY_DARKGREEN
@@ -120,7 +120,7 @@ const GFXfont *myFonts[NUMFONTS] = {&FONT0, &FONT1, &FONT2, &FONT3};
 #define IND_ONC MY_GREEN
 #define IND_ONLC GREEN_L		// FAN medium
 #define IND_OFFC MY_RED			// FAN High
-#define IND_GO_COL RGB565(0,20,32)
+#define IND_GO_COL RGB565_RP(0,20,32)
 // screen calibration 
 struct screenCals {
   int16_t thmin; // tft.pixel (0,0)

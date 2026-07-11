@@ -7,7 +7,7 @@ Basic definitions for all instruments and the Control Module
 //#define ESP8266
 //#define NANO
 #define ESP_32
-
+#define SCREENS 3
 #ifdef ILI9488
 // need to include this before the pin (re)definitions
 #include <Arduino_GFX_Library.h>
@@ -15,6 +15,11 @@ Basic definitions for all instruments and the Control Module
 
 #include <EEPROM.h>
 #include <WiFi.h>
+
+// yield() does not allow low (idle) priority tasks to run 
+//#define MY_FEED_LOOP_WDT(); feedLoopWDT();
+#define MY_FEED_LOOP_WDT() {delayMicroseconds(1); yield();}
+
 
 #define EEAUTOSAVE 1	// 1 for save to EEPROM (production), 0 (!= 1) for no save
 #define SAVE_EE_AFTER 3	// VL cycles - 3 for production
@@ -141,47 +146,47 @@ struct wifiParams { // Wifi credentials
   #define LOCAL_PASS "MyPass"
 #endif
 struct instID {
-	IPAddress prefIP;	// preferred IP
+	IPAddress prefIP;	// AP mode: preferred IP 
 	IPAddress gateIP;	
 	IPAddress netmask;	
-    char local_ssid[SSIDLEN];
-	char local_pass[NETPASSLEN];	// always assumes DHCP on WiFi
-	char esp_ssid[SSIDLEN];
-	char esp_pass[NETPASSLEN];	// always assumes DHCP on WiFi
+  char local_ssid[SSIDLEN];  // always assumes DHCP on WiFi
+	char local_pass[NETPASSLEN];	
+	char esp_ssid[SSIDLEN]; // always assumes DHCP on WiFi
+	char esp_pass[NETPASSLEN];	
 	bool autoConnect;			// maybe "enabled"?
 	char instName[NAMELEN];
 	bool daughter_present;		// changed by control_setup()
-} myID = {{192,168,50,1}, {192,168,50,1},{192,168,50,255}, LOCAL_SS, LOCAL_PASS, ESPNETNAME, ESPNETPW, true, "MyLoad", false};
+} myID = {{192,168,50,1}, {192,168,50,1}, {192,168,50,255}, LOCAL_SS, LOCAL_PASS, ESPNETNAME, ESPNETPW, true, "MyLoad", false};
 
 bool IamAP = false;	// am I the AP?
 
 // screen pixel limits
 // screen pixel limits
 #ifdef ILI9341
-	#define HMAX 320
-	#define VMAX 240
-	#define SCREENROT 3 // SCREEN rotation default
-	#define TOUCHROT 1
+	#define HMAX 			320
+	#define VMAX 			240
+	#define SCREENROT 1 // SCREEN rotation default
+	#define TOUCHROT 	1
 #else // ILI9488
-	#define HMAX 480	// not used everywhere. when using sx() 320 is max
-	#define VMAX 320    // not used everywhere. when using sy() 240 is max
+	#define HMAX 			480		// not used everywhere. when using sx() 320 is max
+	#define VMAX 			320    // not used everywhere. when using sy() 240 is max
 	#define SCREENROT 3 // SCREEN rotation default
-	#define TOUCHROT 1
+	#define TOUCHROT 	1
 #endif
 
 // various global defs
-#define UDP_PORT 8888 
+#define UDP_PORT 		8888 
 #define TELNET_PORT 5025 // SCPI std
 #define MAXTRACKGRP 127
-#define HOSTLEN 48
+#define HOSTLEN 		48
 
 // updated on connection
-IPAddress myIP 			= {192,168,1,200};
+IPAddress myIP 					= {192,168,1,200};
 IPAddress myBroadcastIP = {192,168,1,255};
 IPAddress mySubnetMask  = {255,255,255,0};
 
-IPAddress myAP_IP       = {192,168,50,1};
-IPAddress myAP_GATEWAY  = {192,168,50,0};
+IPAddress myAP_IP       	 = {192,168,50,1};
+IPAddress myAP_GATEWAY  	 = {192,168,50,0};
 IPAddress myAP_BroadcastIP = {192,168,50,255};
 IPAddress myAP_SubnetMask  = {255,255,255,0};
 
@@ -189,7 +194,7 @@ char myHostName[HOSTLEN];
 char IPstring[16];
 uint8_t myNetCDIR = 24;
 
-#define WIFISTORED 6		// stored WiFi credentials
+#define WIFISTORED 	6		// stored WiFi credentials
 #define WIFIMAXCONN	127
 struct WiFiStore
 {
@@ -206,14 +211,15 @@ bool needToSaveEE = false;
 // on screen keyboard active - disable various functions
 bool oskOn = false;
 
-#define SCPI_BUFLEN 256
+#define SCPI_BUFLEN 	256
 #define SCPI_SHORTCMD 4
 // SCPI stream timeouts (Seconds) -1 == never
-#define SCPIUDPTIMEOUT 		10	// (S)
+#define SCPIUDPTIMEOUT 			10	// (S)
 #define SCPISERIALTIMEOUT 	-1	// (S)
 #define SCPITELNETTIMEOUT 	-1	// (S) 
 #define HEART_MSG "HEARTBEAT"
 
 // test values - not for production
 float xDumVal = 0.0;
+volatile long controlCount;
 #endif /* MYINST_H */

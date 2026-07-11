@@ -640,8 +640,8 @@ int control(uint8_t c_speed)
 //if (batUpdateMode && (dxxx % 20) == 0) Serial.print("^");
 	  vRead  = meas.ADSvolts;   
 	  iRead  = meas.ADSamps;
-	  iGap = settingsGap(ADC_ADS);
-	  iGap2 = settingsRatioGap(ADC_ADS);
+	  iGap   = settingsGap(ADC_ADS);
+	  iGap2  = settingsRatioGap(ADC_ADS);
     bool ilim = (iRead - dynSet.current - MEDIUM_DIFF) > 0;
 
 	  // gap too small to iterate again
@@ -710,23 +710,32 @@ int modeCalc(float readV, float readI, uint8_t c_speed, bool guessFirst, bool pr
   switch (mode) // all modes except CC
   {
     // have no idea of correct values at switch on as I reading is Zero.
-	// at a new setting, we make the assumption that the DUT has a linear V/I characteristic (resistive)
+	  // at a new setting, we make the assumption that the DUT has a linear V/I characteristic (resistive)
     // give a small kick initially, to get an initial I reading, then go from there.
     case MODE_CC :
       firstGuess = guessFirst;
       break;
     case MODE_CR : 
     case MODE_CP :	
-      if(readV < 	RP_DROPOUT_V)
-          errorKill(true, true, meas.ADSvolts, "Insufficient voltage\nfor CP/CR mode\control.", true);     
-          // CV tests also apply
+      if(readV < 	RP_DROPOUT_V && c_speed == ESP_CONTROL) // meas.ADSvolts is sometimes very small
+      {
+        Serial.printf("CP modeCalc meas %2.2f(%2.2f)V, vRead %2.2fV, iRead %1.2fA, DAC %i. csp %i\n", meas.ADSvolts, meas.ESPvolts, readV, readI, _lastDAC, c_speed);
+        /*while(1) // debug
+        {
+           MY_FEED_LOOP_WDT(); 
+           vTaskDelay(100);
+        }
+        */
+        errorKill(true, true, meas.ADSvolts, "Insufficient voltage\nfor CP/CR mode\ncontrol.", true);    
+      } 
+    // CV tests also apply to CP/CR
     case MODE_CV : 
       if(readI < IDROPOUT || guessFirst)    
       {          
-          DACval = ampsToDAC(KICK); // provide a small current to get things started
-          //if (printMe) Serial.printf(" Kick: not enough current. GF %i [%i]\n", guessFirst, DACval ); 
-          firstGuess = true;		   
-          return DACval;
+        DACval = ampsToDAC(KICK); // provide a small current to get things started
+        //if (printMe) Serial.printf(" Kick: not enough current. GF %i [%i]\n", guessFirst, DACval ); 
+        firstGuess = true;		   
+        return DACval;
       }         
 	  // CV mode - I setting has brought V down to Zero  
 	  // what about other modes?
@@ -797,7 +806,7 @@ int modeCalc(float readV, float readI, uint8_t c_speed, bool guessFirst, bool pr
         break;
       }
       DACval = limitMe(curVal, setPoint, readV, readI, mode);
-      if(_isLimiting)
+      if(_isLimiting && setPoint > curVal) // dynSet.current is largest allowable 
         break;
      
       if(firstGuess) // initial setpoint assumes constant V. 
@@ -1056,16 +1065,20 @@ int limitMe(float curVal, float setPoint, float readV, float readI, int mode)
           }
  */
 volatile int debugSlow = 0;
+
 #define SLOWDOWN 200
-// control task - suspends after each cycle, waiting for ADS interrupt to resume
+// control task (xTask) - suspends after each cycle, waiting for ADS interrupt to resume
 // calls actual control code after checking ADS/ESP ADC inputs and state
 // If both ADS readings are done [adsSetready], then control(ADS) if there's a settings-readings gap 
 // In between, control(ESP) only if ESP/ADS ADC readings differ significantly
 void controlTask(void *pvParameters)
 {
   long tim;
+  
+  //ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
   while(1) // infinite
   {
+    //esp_task_wdt_reset();
     tim = micros();
     adsProcess(); 
 #ifdef C_DEBUG
@@ -1141,7 +1154,7 @@ if(debugSlow == SLOWDOWN)
    
    long td = micros() - tim;
    controlTime += (td);
-   loops++;
+   controlLoops = controlLoops + 1;
    //if(td > 2100) Serial.print("*");
 #ifdef C_DEBUG 
    testPin != testPin;
@@ -1434,7 +1447,9 @@ void errorKill(bool shutOff, bool DACzero, float reading, const char errMsg[], b
     scrE.bgcol = ERR_BG_B;
     scrE.onTime = -1; // wait until touched
     scrE.logo = false;  
+#ifndef NO_ERRORS
     Serial.printf("Non blocking kill, %s\n",   scrE.message);
+#endif
   }
   else
 	  screenError(scrE.message, ERR_BG_B, -1, false);

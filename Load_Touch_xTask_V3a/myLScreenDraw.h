@@ -405,7 +405,7 @@ void printX(valFmt * xp,  short highlight, uint16_t txtcol, uint16_t highcol, ui
 {  
   if(holdScreen)
     return;
-  // bgcol = RGB565(0,0,30); // testing block out
+  // bgcol = RGB565_RP(0,0,30); // testing block out
   char ch, buf[128], fmt;
   uint16_t xcursor;
   uint16_t  cwid, cht, x, y, pre, post; 
@@ -589,17 +589,9 @@ void printX(valFmt * xp,  short highlight, uint16_t txtcol, uint16_t highcol, ui
 
     // from most signif digit; extract the digit; subtract its value from the number (i.e. calc remainder)
     pownum = pow(10, powVal);
-//if(numtest) Serial.printf("PN %6.3f | ", pownum);
     tempVal = val/pownum; // myRound(pownum, -powVal);
-//if(numtest) Serial.printf("TV %8.5f | ", tempVal);
-//if(numtest && powVal == -post) Serial.print("*");
-	//if(i == nChars -1)
-	   //digit =  myRound(tempVal + SMALL_DIFF,1); //  truncate to single digit integer (round **final** digit to one decimal place to avoid trunc issue)
-    //else
   	digit = tempVal + VSMALL_DIFF;  // float to integer truncate, avoid rounding errors 
-    //if (digit < 0)        digit = 0;
     val = val - digit * pownum;    
-//if(numtest) Serial.printf("D[%i] %i | RV %6.3f\n", powVal,digit, val);
   
     // print the digit, or a leading space
     itoa(digit, buf, 10);
@@ -610,18 +602,15 @@ void printX(valFmt * xp,  short highlight, uint16_t txtcol, uint16_t highcol, ui
        if (powVal == 0) // single zero before decimal
 	   {
         tft.print(buf);
-		//if(numtest) Serial.printf("[%s]", buf);
 	   }
        else
 	   {
-		//   if(numtest) Serial.print("[ ]");
         tft.print(" ");
 	   }
     }
     else 
     {
       tft.print(buf);
-	  //if(numtest) Serial.printf("[%s]", buf);
       printedDot = true;
     }
     powVal--;
@@ -661,27 +650,26 @@ void printX(valFmt * xp,  short highlight, uint16_t txtcol, uint16_t highcol, ui
 
 void waitOne(void) // mS
 {
-    feedLoopWDT();  // Just in case
-    vTaskDelay(1);  // hand control to FreeRTOS
-    yield();
+    MY_FEED_LOOP_WDT();  // Just in case
+    delayMicroseconds(1);
+    //vTaskDelay(1 / portTICK_PERIOD_MS);  // hand control to FreeRTOS
+   // yield();
 }
-// onTime < 0 == wait for screen touch
+// onTime < 0: wait for screen touch
 void screenError(const char * message, uint16_t bgcol, int16_t onTime, bool logo)
-{    
-#ifdef NO_ERRORS
-	return;
-#endif
-    char scrBuf[128];
+{   
+   char scrBuf[128];
    strcpy(scrBuf, message);  
    if(onTime < 0)
    {
      strcat(scrBuf, "\n\nWaiting for screen touch...");
    }
+
 	 int i, ycursr = VTOP_E + LINESP_E;
    tft.setRotation(sc.scrRot);
 	 tft.fillRoundRect(HLEFT_E, VTOP_E, WIDTH_E, HEIGHT_E, ROUND_E, bgcol);
 	 for(i = 0; i < BORDER_E; i++)
-		tft.drawRoundRect(HLEFT_E + i, VTOP_E + i, WIDTH_E - 2 * i, HEIGHT_E - 2 * i, ROUND_E, HIGHLIGHTCOL);
+		 tft.drawRoundRect(HLEFT_E + i, VTOP_E + i, WIDTH_E - 2 * i, HEIGHT_E - 2 * i, ROUND_E, HIGHLIGHTCOL);
 	 tft.setTextColor(HIGHLIGHTCOL);
 	 tft.setFont(&FONT1); 
 	 //tft.setTextSize(TEXTSIZ_E);
@@ -702,7 +690,7 @@ void screenError(const char * message, uint16_t bgcol, int16_t onTime, bool logo
 		tft.drawBitmap(HMAX/2-87/2, VTOP_E + HEIGHT_E - 64 - MARGIN_E, platy_img2, 128, 96, BGCOL);
 #endif
 int cntr = 0;
-   if(onTime <= 0) // display message and wait
+   if(onTime < 0) // display message and wait
    {      
       holdScreen = true;
       //while(!processTouchSwEnc(true)) // anyTouch _scrTouched
@@ -714,24 +702,26 @@ int cntr = 0;
       }
       holdScreen = false;
     }
-
     else    
+    {      
   	 for (i = 0; i < onTime * 1000; i++) 
-  	 {
   		 waitOne();
-  	 }
+    }
 	 dirtyScreen = true;
 }
+
 void splashScreen(void)
 {
 	char buf[256];
 	sprintf(buf, "WiFi Programmable\nDC Load\nModel %s\nVersion %i\n", MODEL, SOFT_VERSION);
+
 #ifdef ILI9341
 	screenError(buf, ERR_BG_A ,5, false); // no bitmap for 2.8"
 #else
 		screenError(buf, ERR_BG_A ,5, true);
 #endif
 }
+
 #ifdef ILI9341
 void ili9341Diag(void)
 {

@@ -25,8 +25,8 @@ float slopex, slopey;
 #define SC_HITCOUNT  5
 #define SC_DIST	20		// distance of '+' from corners
 #define SC_LINELEN 20	// length of '+' bars
-#define SC_BG RGB565(0,20,15)
-#define SC_BG2 RGB565(31,10,0)
+#define SC_BG RGB565_RP(0,20,15)
+#define SC_BG2 RGB565_RP(31,10,0)
 #define SC_HIGH  0xffff
 
 void calStop(void){

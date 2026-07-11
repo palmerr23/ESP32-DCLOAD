@@ -10,10 +10,6 @@ myID comms params overwritten from profile.json
 #include "LittleFS.h"
 //#define PROF_TEST	// comment out for production - writes then reads back into dummy structures, compares
 
-//#define EE_VER_L 6  // SIZE OF THE BLOB
-//#define EE_VER_MAJOR 2 // number of digits at the start defining a major version (incompatible data structures if different)
-//#define EE_MODEL 12
-//#define EE_CRC_L 1   
 bool checkProfileHdr(void);
 int factory_reset(void);
 int writeEE(void);
@@ -45,8 +41,8 @@ bool LittleFSstart()
   if(LittleFS.begin(FORMAT_SPIFFS_IF_FAILED))
   {
     //Serial.println("LittleFS Mounted"); 
-    // listDir(SPIFFS, "/", 4);
-     return true;
+    //listDir(LittleFS, "/", 4);
+    return true;
   } 
   else
     Serial.println("LittleFS Mount Failed");
@@ -73,7 +69,7 @@ void saveSettings(void)
 	if(EEcntr > SAVE_EE_AFTER)
 	{
 		EEcntr = 0;
-		//Serial.print("*** Saving settings\n");
+		Serial.print("*** Saving settings\n");
 		setComms(false);
 		writeEE();
     needToSaveEE = false;
@@ -84,15 +80,13 @@ void saveSettings(void)
 bool beginEE() {
   int addr = 0, rb;
 
-  Serial.printf("Reading EEPROM Profile, %i bytes\n", EESIZE);  
-  
-  EEPROM.begin(EESIZE + 5 ); // maybe a few additional bytes will stop the occasional kernel panic restart
-  
-  addr = 0;
+  Serial.printf("Reading EEPROM Profile, %i bytes\n", EESIZE);    
+  EEPROM.begin(EESIZE + 5);
+
   // read Profile into a temp structure, and compare with software defaults
   rb = EEPROM.readBytes(addr, (void *)&eeProfile, sizeof(eeProfile));
   if (checkProfileHdr() == false) 
-    {
+  {
 		Serial.printf("Read %i EE bytes. Incompatible stored profile - factory reset triggered.\n", rb);
 		
 		factory_reset();
@@ -104,7 +98,7 @@ bool beginEE() {
 		}
 	}
   rb = readEE();  
-  //Serial.printf("EE read OK [%i]\n", rb);
+
   dirtyScreen = true;
   return true;
 }
@@ -113,7 +107,7 @@ int factory_reset(void){
 	int bw;
    //  write to EEPROM: Profile, HAL, calibration and settings - already intitalised to defaults   
 	   bw = writeEE();
-   printf("Written %i bytes to EEPROM\n",bw );
+   Serial.printf("Written %i bytes to EEPROM\n",bw );
    return bw;
 }
 
@@ -152,7 +146,7 @@ int writeEE(void){
 	//Serial.printf("Total bytes to be written = %i\n",addr + sizeof(pSet) );
 	
 	// try to avoid watchdog timer kernel panic and reboot - none of these seem to work!
-	 feedLoopWDT(); yield(); 
+	 MY_FEED_LOOP_WDT(); yield(); 
 	long gap;
 	gap = millis();
 	disableLoopWDT(); //ESP.wdtDisable(); 
@@ -163,7 +157,7 @@ int writeEE(void){
 	enableLoopWDT(); // ESP.wdtEnable(WDTO_8S); 
 	gap -= millis();
 	//Serial.printf("EEPROM save took %ld mS\n", gap);
-	 feedLoopWDT();  feedLoopWDT(); yield(); 	
+	 MY_FEED_LOOP_WDT();  
 
 	//Serial.println("Written EEPROM");
 
