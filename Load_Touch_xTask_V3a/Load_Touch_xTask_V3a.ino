@@ -1,7 +1,7 @@
-// V1.3aR5
-//#define PROD
+// V1.3aR5a
+#define PROD
 #define SOFT_VERSION 4
-#define KELVIN_MOD // only redefines a few default calibration settings
+#define KELVIN_MOD // Redefines a few default calibration settings
 /* REMEMBER TO SET DISPLAY TYPE BEFORE COMPILING
  * compile with Board "ESP32 Dev Module" and  Partition "Minimal SPIFFS (1.9Mb with OTA / 128kB SPIFFS)"
  * controlTask() is driven by ADS1115 interrupts, watchdog in main code for lost interrupt 
@@ -142,7 +142,7 @@ for(int i = 0; i < NUM_CALS; i++)
   
   // set up control pins, ISR and other hardware-related initialisation
   control_setup(); // daughter board sensing
-  
+
   // comms params from SPIFFS profile.json - must run after Settings read from SPIFFS (overwrite comms in myID)
   if(getComms()) 
   {
@@ -208,9 +208,7 @@ for(int i = 0; i < NUM_CALS; i++)
   Serial.print(">");
 #endif
   SCPI_setup();
-   // configure Fan PWM
-  ledcAttach(PWM_PIN, PWM_FREQ, PWM_RESOLUTION);
-  setFan(70);
+
   redrawScreen();
   //printDaughterCal();
   //printHalCal();
@@ -389,8 +387,7 @@ void loop() /**************** LOOP ***************************/
   // lower priority  - screen redraw
   if(millis() > lTimer + PROCESS_EVERY_L)
   {
-    lTimer = millis();  
-    
+    lTimer = millis();     
     //Serial.printf("ADSV %2.3f\n", meas.ADSvolts);
     
     if(highButton >= 0 && highButton < NUMBUTS) // ensure highlighted set digit is always visible
@@ -435,20 +432,20 @@ void loop() /**************** LOOP ***************************/
    //Serial.printf("Fan %i pwm [%2.1f C]\n", fanControl(), meas.ESPtemp);
 
 #ifdef xxxC_DEBUG // slow down control for debug
-      _DACis = control(ADS_CONTROL);
+    _DACis = control(ADS_CONTROL);
 #endif
-     startUp = false; // startUp concluded first time this is called
-     if(!holdScreen)
-     {
-       drawIndicators(currentMenu);
-       drawLegends(currentMenu);
-     }
-     myBlink = !myBlink;  
-     if(!_outOn && updateZero) // re-calibrate zero current offset
-     {   
-        currentZeroCal(); 
-        updateZero = false;
-     }
+    startUp = false; // startUp concluded first time this is called
+    if(!holdScreen)
+    {
+      drawIndicators(currentMenu);
+      drawLegends(currentMenu);
+    }
+    myBlink = !myBlink;  
+    if(!_outOn && updateZero) // re-calibrate zero current offset
+    {   
+      currentZeroCal(); 
+      updateZero = false;
+    }
   } 
   MY_FEED_LOOP_WDT();
   yield(); 

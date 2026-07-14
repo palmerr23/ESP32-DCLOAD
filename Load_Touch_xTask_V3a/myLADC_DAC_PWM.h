@@ -294,7 +294,7 @@ inline int dacSetAmps(float amps)
 int setFan(int PWMpercent)
 { 
   int tempP = constrain(PWMpercent * MAXPWM / 100, 0, MAXPWM);
-  ledcWrite(PWMChannel, tempP);
+  ledcWrite(PWM_PIN, tempP);
   _curPWM = tempP;
   return tempP;
   //Serial.printf(" [%i]",tempP);
